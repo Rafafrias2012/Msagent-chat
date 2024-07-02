@@ -3,7 +3,8 @@
   "workspaces": [
     "server",
     "webapp",
-    "protocol"
+    "protocol",
+    "msagent.js"
   ],
   "packageManager": "yarn@4.2.2"
 }
