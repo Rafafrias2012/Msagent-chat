@@ -1,0 +1,18 @@
+{
+  "name": "msagent-chat-server",
+  "scripts": {
+    "build": "tsc"
+  },
+  "packageManager": "yarn@4.2.2",
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "@fastify/websocket": "^10.0.1",
+    "fastify": "^4.28.1",
+    "ws": "^8.17.1"
+  },
+  "type": "module"
+}
