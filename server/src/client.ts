@@ -1,5 +1,6 @@
 import EventEmitter from "events";
 import { WebSocket } from "ws";
+import { MSAgentProtocolMessage } from '@msagent-chat/protocol';
 
 export class Client extends EventEmitter {
     username: string | null;
@@ -21,7 +22,7 @@ export class Client extends EventEmitter {
         });
     }
 
-    private parseMessage(msg: string) {
-
+    private parseMessage(data: string) {
+        let msg: MSAgentProtocolMessage;
     }
 }

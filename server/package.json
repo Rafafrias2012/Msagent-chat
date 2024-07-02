@@ -1,7 +1,8 @@
 {
-  "name": "msagent-chat-server",
+  "name": "@msagent-chat/server",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "serve": "node dist/index.js"
   },
   "packageManager": "yarn@4.2.2",
   "devDependencies": {

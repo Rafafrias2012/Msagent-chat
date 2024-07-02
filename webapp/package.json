@@ -1,5 +1,5 @@
 {
-  "name": "msagent-chat-webapp",
+  "name": "@msagent-chat/webapp",
   "scripts": {
     "build": "parcel build --no-source-maps --dist-dir dist --public-url '.' src/html/index.html",
     "serve": "parcel src/html/index.html",

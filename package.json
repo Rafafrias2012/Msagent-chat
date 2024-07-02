@@ -2,7 +2,8 @@
   "name": "msagent-chat",
   "workspaces": [
     "server",
-    "webapp"
+    "webapp",
+    "protocol"
   ],
   "packageManager": "yarn@4.2.2"
 }

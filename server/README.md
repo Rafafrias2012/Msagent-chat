@@ -1,1 +1,1 @@
-# msagent-chat-server
+# @msagent-chat/server

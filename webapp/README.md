@@ -1,1 +1,1 @@
-# msagent-chat-webapp
+# @msagent-chat/webapp

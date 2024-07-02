@@ -1,0 +1,12 @@
+{
+  "name": "@msagent-chat/protocol",
+  "packageManager": "yarn@4.2.2",
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "main": "./dist/protocol.js",
+  "types": "./dist/protocol.d.ts"
+}
