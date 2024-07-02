@@ -3,6 +3,7 @@ export enum MSAgentProtocolMessageType {
     Join = "join",
     Talk = "talk",
     // Server-to-client
+    Init = "init",
     AddUser = "adduser",
     RemoveUser = "remuser",
     Message = "msg"
@@ -29,6 +30,13 @@ export interface MSAgentTalkMessage extends MSAgentProtocolMessage {
 }
 
 // Server-to-client
+
+export interface MSAgentInitMessage extends MSAgentProtocolMessage {
+    op: MSAgentProtocolMessageType.Init,
+    data: {
+        users: string[]
+    }
+}
 
 export interface MSAgentAddUserMessage extends MSAgentProtocolMessage {
     op: MSAgentProtocolMessageType.AddUser,
