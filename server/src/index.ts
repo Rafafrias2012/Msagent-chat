@@ -7,6 +7,8 @@ import * as toml from 'toml';
 import { IConfig } from './config.js';
 import * as fs from 'fs';
 import { TTSClient } from './tts.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 let config: IConfig;
 let configPath: string;
@@ -36,15 +38,23 @@ app.register(FastifyWS);
 
 let tts = null;
 
+app.register(FastifyStatic, {
+    root: path.dirname(fileURLToPath(import.meta.url)) + "/../../webapp/dist/",
+    prefix: "/",
+    decorateReply: true
+  });
+
 if (config.tts.enabled) {
     tts = new TTSClient(config.tts);
     app.register(FastifyStatic, {
         root: config.tts.tempDir,
-        prefix: "/api/tts/"
+        prefix: "/api/tts/",
+        decorateReply: false
     });
 }
 
-let room = new MSAgentChatRoom(tts);
+
+let room = new MSAgentChatRoom(config.chat, tts);
 
 app.register(async app => {
     app.get("/socket", {websocket: true}, (socket, req) => {

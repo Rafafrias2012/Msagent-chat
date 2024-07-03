@@ -16,6 +16,7 @@ export class MSAgentClient {
     private events: Emitter;
     private users: User[];
     private playingAudio: Map<string, HTMLAudioElement> = new Map();
+    private charlimit: number = 0;
     
     private username: string | null = null;
     private agent: string | null = null;
@@ -99,6 +100,10 @@ export class MSAgentClient {
         this.send(talkMsg);
     }
 
+    getCharlimit() {
+        return this.charlimit;
+    }
+
     private handleMessage(data: string) {
         let msg: MSAgentProtocolMessage;
         try {
@@ -112,6 +117,7 @@ export class MSAgentClient {
                 let initMsg = msg as MSAgentInitMessage;
                 this.username = initMsg.data.username;
                 this.agent = initMsg.data.agent;
+                this.charlimit = initMsg.data.charlimit;
                 this.users.push(...initMsg.data.users.map(u => new User(u.username, u.agent)));
                 this.events.emit('join');
                 break;
@@ -119,6 +125,7 @@ export class MSAgentClient {
             case MSAgentProtocolMessageType.AddUser: {
                 let addUserMsg = msg as MSAgentAddUserMessage
                 let user = new User(addUserMsg.data.username, addUserMsg.data.agent);
+                this.users.push(user);
                 this.events.emit('adduser', user);
                 break;
             }

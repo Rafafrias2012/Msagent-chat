@@ -3,6 +3,7 @@ export interface IConfig {
         host: string;
         port: number;
     }
+    chat: ChatConfig;
     tts: TTSConfig
 }
 
@@ -12,4 +13,8 @@ export interface TTSConfig {
     voice: string;
     tempDir: string;
     wavExpirySeconds: number;
+}
+
+export interface ChatConfig {
+    charlimit: number;
 }

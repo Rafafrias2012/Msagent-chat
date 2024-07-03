@@ -1,13 +1,18 @@
 import { MSAgentAddUserMessage, MSAgentChatMessage, MSAgentInitMessage, MSAgentProtocolMessage, MSAgentProtocolMessageType, MSAgentRemoveUserMessage } from "@msagent-chat/protocol";
 import { Client } from "./client.js";
 import { TTSClient } from "./tts.js";
+import { ChatConfig } from "./config.js";
+import * as htmlentities from 'html-entities';
 
 export class MSAgentChatRoom {
     clients: Client[];
     tts: TTSClient | null;
     msgId : number = 0;
-    constructor(tts: TTSClient | null) {
+    config: ChatConfig;
+
+    constructor(config: ChatConfig, tts: TTSClient | null) {
         this.clients = [];
+        this.config = config;
         this.tts = tts;
     }
 
@@ -32,6 +37,7 @@ export class MSAgentChatRoom {
                 data: {
                     username: client.username!,
                     agent: client.agent!,
+                    charlimit: this.config.charlimit,
                     users: this.clients.filter(c => c.username !== null).map(c => {
                         return {
                             username: c.username!,
@@ -57,7 +63,7 @@ export class MSAgentChatRoom {
                 op: MSAgentProtocolMessageType.Chat,
                 data: {
                     username: client.username!,
-                    message
+                    message: htmlentities.encode(message)
                 }
             };
             if (this.tts !== null) {

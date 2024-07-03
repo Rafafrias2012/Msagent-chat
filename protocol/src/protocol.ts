@@ -37,6 +37,7 @@ export interface MSAgentInitMessage extends MSAgentProtocolMessage {
     data: {
         username: string
         agent: string
+        charlimit: number
         users: {
             username: string,
             agent: string

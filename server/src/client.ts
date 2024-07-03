@@ -41,6 +41,10 @@ export class Client extends EventEmitter {
 
     send(msg: MSAgentProtocolMessage) {
         return new Promise<void>((res, rej) => {
+            if (this.socket.readyState !== WebSocket.OPEN) {
+                res();
+                return;
+            }
             this.socket.send(JSON.stringify(msg), err => {
                 if (err) {
                     rej(err);
@@ -66,7 +70,15 @@ export class Client extends EventEmitter {
                     this.socket.close();
                     return;
                 }
-                this.username = htmlentities.encode(joinMsg.data.username);
+                let username = htmlentities.encode(joinMsg.data.username);
+                if (this.room.clients.some(u => u.username === username)) {
+                    let i = 1;
+                    let uo = username;
+                    do {
+                        username = uo + i++;
+                    } while (this.room.clients.some(u => u.username === username))
+                }
+                this.username = username;
                 this.agent = htmlentities.encode(joinMsg.data.agent);
                 this.emit('join');
                 break;
@@ -76,7 +88,8 @@ export class Client extends EventEmitter {
                 if (!talkMsg.data || !talkMsg.data.msg) {
                     return;
                 }
-                this.emit('talk', htmlentities.encode(talkMsg.data.msg));
+                if (talkMsg.data.msg.length > this.room.config.charlimit) return;
+                this.emit('talk', talkMsg.data.msg);
                 break;
             }
         }

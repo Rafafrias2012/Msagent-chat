@@ -39,9 +39,10 @@ elements.chatSendBtn.addEventListener('click', () => {
 });
 
 async function connectToRoom() {
-    Room = new MSAgentClient("http://127.0.0.1:3000");
+    Room = new MSAgentClient(`${window.location.protocol}//${window.location.host}`);
     await Room.connect();
     await Room.join(elements.logonUsername.value, "test");
+    elements.chatInput.maxLength = Room.getCharlimit();
     logonWindow.hide();
     elements.logonView.style.display = "none";
     elements.chatView.style.display = "block";
