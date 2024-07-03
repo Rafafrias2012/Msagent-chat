@@ -1,4 +1,6 @@
-import { MSWindow, MSWindowStartPosition } from "./MSWindow.js"
+import { MSWindow, MSWindowStartPosition } from "./MSWindow.js";
+
+import { agentInit } from "@msagent-chat/msagent.js";
 
 const elements = {
     logonView: document.getElementById("logonView") as HTMLDivElement,
@@ -23,4 +25,8 @@ elements.logonForm.addEventListener('submit', e => {
     logonWindow.hide();
     elements.logonView.style.display = "none";
     elements.chatView.style.display = "block";
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await agentInit();
 });

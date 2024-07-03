@@ -164,6 +164,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@msagent-chat/msagent.js@npm:*, @msagent-chat/msagent.js@workspace:msagent.js":
+  version: 0.0.0-use.local
+  resolution: "@msagent-chat/msagent.js@workspace:msagent.js"
+  dependencies:
+    "@parcel/core": "npm:^2.12.0"
+    parcel: "npm:^2.12.0"
+    typescript: "npm:^5.5.3"
+  languageName: unknown
+  linkType: soft
+
 "@msagent-chat/protocol@workspace:protocol":
   version: 0.0.0-use.local
   resolution: "@msagent-chat/protocol@workspace:protocol"
@@ -189,6 +199,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@msagent-chat/webapp@workspace:webapp"
   dependencies:
+    "@msagent-chat/msagent.js": "npm:*"
     "@parcel/core": "npm:^2.12.0"
     parcel: "npm:^2.12.0"
     run-script-os: "npm:^1.1.6"
@@ -618,6 +629,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@parcel/packager-ts@npm:2.12.0":
+  version: 2.12.0
+  resolution: "@parcel/packager-ts@npm:2.12.0"
+  dependencies:
+    "@parcel/plugin": "npm:2.12.0"
+  checksum: 10c0/244f94c0d33cfb76e429196bf826e73f508ee4e4af7aa736b02ff3de65ace8ea12a0d7bf8d7d1e6c2ee4d0d5f1db8564db01d58379b08cf8bd4c90d0476f053b
+  languageName: node
+  linkType: hard
+
 "@parcel/packager-wasm@npm:2.12.0":
   version: 2.12.0
   resolution: "@parcel/packager-wasm@npm:2.12.0"
@@ -910,6 +930,33 @@ __metadata:
     posthtml-render: "npm:^3.0.0"
     semver: "npm:^7.5.2"
   checksum: 10c0/8916bdc0b36c60b32963e015c43a8bcd8cc2b15cc11b7611c49af6a4e4d63c2aabea0aa0fde31a78278eec25f88b52b3e56d8382dc2db5f3a401e63312115f3a
+  languageName: node
+  linkType: hard
+
+"@parcel/transformer-typescript-types@npm:2.12.0":
+  version: 2.12.0
+  resolution: "@parcel/transformer-typescript-types@npm:2.12.0"
+  dependencies:
+    "@parcel/diagnostic": "npm:2.12.0"
+    "@parcel/plugin": "npm:2.12.0"
+    "@parcel/source-map": "npm:^2.1.1"
+    "@parcel/ts-utils": "npm:2.12.0"
+    "@parcel/utils": "npm:2.12.0"
+    nullthrows: "npm:^1.1.1"
+  peerDependencies:
+    typescript: ">=3.0.0"
+  checksum: 10c0/6b0e89b64f2cfc5e56b972b02a6a1b97c50e60b6ab935389ebf9479d05d164fe4ff9dc297b0d78ed3d3578f80049425b056512546d45877f549a6713d54efd03
+  languageName: node
+  linkType: hard
+
+"@parcel/ts-utils@npm:2.12.0":
+  version: 2.12.0
+  resolution: "@parcel/ts-utils@npm:2.12.0"
+  dependencies:
+    nullthrows: "npm:^1.1.1"
+  peerDependencies:
+    typescript: ">=3.0.0"
+  checksum: 10c0/be53613cb3d950f5a6f0690af4bdda1ec9aaf0e97a035c66271230bd322ae29568d10831e61ded899188ca36d80add8ccbfcb494ebd4b0d9795cb51ccb7425cc
   languageName: node
   linkType: hard
 
@@ -2688,6 +2735,10 @@ __metadata:
 "msagent-chat@workspace:.":
   version: 0.0.0-use.local
   resolution: "msagent-chat@workspace:."
+  dependencies:
+    "@parcel/packager-ts": "npm:2.12.0"
+    "@parcel/transformer-typescript-types": "npm:2.12.0"
+    typescript: "npm:>=3.0.0"
   languageName: unknown
   linkType: soft
 
@@ -3517,7 +3568,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.5.3":
+"typescript@npm:>=3.0.0, typescript@npm:^5.5.3":
   version: 5.5.3
   resolution: "typescript@npm:5.5.3"
   bin:
@@ -3527,7 +3578,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.5.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A>=3.0.0#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.5.3#optional!builtin<compat/typescript>":
   version: 5.5.3
   resolution: "typescript@patch:typescript@npm%3A5.5.3#optional!builtin<compat/typescript>::version=5.5.3&hash=b45daf"
   bin:
