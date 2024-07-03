@@ -45,12 +45,11 @@ async function connectToRoom() {
     logonWindow.hide();
     elements.logonView.style.display = "none";
     elements.chatView.style.display = "block";
-});
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
     await agentInit();
 });
-}
 
 function talk() {
     if (Room === null) return;
