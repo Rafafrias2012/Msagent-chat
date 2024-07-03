@@ -1,10 +1,4 @@
-@font-face {
-    font-family: "MS Sans Serif";
-    src: url("../../assets/fonts/micross.ttf") format("truetype")
-}
-
 body {
-    font-family: "MS Sans Serif", sans-serif;
     background-color: #3A6EA5;
     font-size: 8pt;
 }
@@ -17,21 +11,11 @@ body {
     display: none;
 }
 
-.ms-window {
+.window {
     display: none;
-    background-color: #d4d0c8;
     position: fixed;
-    .ms-window-titlebar {
-        background-image: linear-gradient(to right, #0a246a, #a6caf0);
-        margin: 4px;
-        color: #ffffff;
+    .title-bar {
         user-select: none;
-        font-weight: bold;
-        font-size: 12pt;
-    }
-    .ms-window-body {
-        margin-right: 4px;
-        margin-left: 4px;
     }
 }
 
@@ -44,6 +28,7 @@ body {
     border-image: linear-gradient(to right, #013755, #9ec0da, #013755) 4;
     * {
         margin: 0;
+        font-size: 24pt;
     }
 }
 
@@ -70,22 +55,6 @@ body {
     align-self: flex-end;
     margin-left: auto;
     margin-right: 90px;
-}
-
-button, input {
-    border-radius: 0;
-}
-
-button {
-    background-color: #d4d0c8;
-}
-
-input[type="text"] {
-    background-color: #ffffff;
-}
-
-input[type="text"]:focus-visible {
-    outline: none;
 }
 
 #chatBar {
