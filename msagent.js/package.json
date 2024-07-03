@@ -10,8 +10,14 @@
   "scripts": {
     "build": "parcel build"
   },
+<<<<<<< HEAD
   "type": "module",
   "source": "src/index.ts",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts"
+=======
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module"
+>>>>>>> 2414658 (working chat and TTS)
 }

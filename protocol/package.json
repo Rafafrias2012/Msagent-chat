@@ -8,5 +8,6 @@
     "build": "tsc"
   },
   "main": "./dist/protocol.js",
-  "types": "./dist/protocol.d.ts"
+  "types": "./dist/protocol.d.ts",
+  "type": "module"
 }

@@ -6,7 +6,7 @@ export enum MSAgentProtocolMessageType {
     Init = "init",
     AddUser = "adduser",
     RemoveUser = "remuser",
-    Message = "msg"
+    Chat = "chat"
 }
 
 export interface MSAgentProtocolMessage {
@@ -19,6 +19,7 @@ export interface MSAgentJoinMessage extends MSAgentProtocolMessage {
     op: MSAgentProtocolMessageType.Join,
     data: {
         username: string;
+        agent: string;
     }
 }
 
@@ -34,7 +35,12 @@ export interface MSAgentTalkMessage extends MSAgentProtocolMessage {
 export interface MSAgentInitMessage extends MSAgentProtocolMessage {
     op: MSAgentProtocolMessageType.Init,
     data: {
-        users: string[]
+        username: string
+        agent: string
+        users: {
+            username: string,
+            agent: string
+        }[]
     }
 }
 
@@ -42,6 +48,7 @@ export interface MSAgentAddUserMessage extends MSAgentProtocolMessage {
     op: MSAgentProtocolMessageType.AddUser,
     data: {
         username: string;
+        agent: string;
     }
 }
 
@@ -49,5 +56,14 @@ export interface MSAgentRemoveUserMessage extends MSAgentProtocolMessage {
     op: MSAgentProtocolMessageType.RemoveUser,
     data: {
         username: string;
+    }
+}
+
+export interface MSAgentChatMessage extends MSAgentProtocolMessage {
+    op: MSAgentProtocolMessageType.Chat,
+    data: {
+        username: string;
+        message: string;
+        audio? : string | undefined;
     }
 }

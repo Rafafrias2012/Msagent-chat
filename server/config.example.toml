@@ -1,0 +1,11 @@
+[http]
+host = "127.0.0.1"
+port = 3000
+
+[tts]
+enabled = true
+# https://git.computernewb.com/computernewb/SAPIServer
+server = "http://127.0.0.1:3001"
+voice = "Microsoft Sam"
+tempDir = "/tmp/msac-tts"
+wavExpirySeconds = 60
