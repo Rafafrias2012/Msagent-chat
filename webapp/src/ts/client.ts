@@ -15,6 +15,7 @@ export class MSAgentClient {
     private socket: WebSocket | null;
     private events: Emitter;
     private users: User[];
+    private playingAudio: Map<string, HTMLAudioElement> = new Map();
     
     private username: string | null = null;
     private agent: string | null = null;
@@ -37,7 +38,7 @@ export class MSAgentClient {
                 case "http:":
                     url.protocol = "ws:";
                     break;
-                case "https":
+                case "https:":
                     url.protocol = "wss:";
                     break;
                 default:
@@ -125,6 +126,9 @@ export class MSAgentClient {
                 let remUserMsg = msg as MSAgentRemoveUserMessage;
                 let user = this.users.find(u => u.username === remUserMsg.data.username);
                 if (!user) return;
+                if (this.playingAudio.has(user!.username)) {
+                    this.playingAudio.delete(user!.username);
+                }
                 this.users.splice(this.users.indexOf(user), 1);
                 this.events.emit('remuser', user);
                 break;
@@ -135,6 +139,14 @@ export class MSAgentClient {
                 this.events.emit('chat', user, chatMsg.data.message);
                 if (chatMsg.data.audio !== undefined) {
                     let audio = new Audio(this.url + chatMsg.data.audio);
+                    if (this.playingAudio.has(user!.username)) {
+                        this.playingAudio.get(user!.username)?.pause();
+                        this.playingAudio.delete(user!.username);
+                    }
+                    this.playingAudio.set(user!.username, audio);
+                    audio.addEventListener('ended', () => {
+                        this.playingAudio.delete(user!.username);
+                    });
                     audio.play();
                 }
                 break;
