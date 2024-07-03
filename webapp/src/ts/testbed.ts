@@ -11,7 +11,7 @@ input.addEventListener("change", async () => {
     let buffer = await input.files![0].arrayBuffer();
 
     console.log("About to parse character");
-    msagent.parseCharacterTestbed(new Uint8Array(buffer));
+    msagent.agentParseCharacterTestbed(new Uint8Array(buffer));
     console.log("parsed character");
 })
 
