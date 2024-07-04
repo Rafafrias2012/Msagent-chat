@@ -68,7 +68,15 @@ export class BufferStream {
 	readU32LE() { return this.readImpl(DataView.prototype.getUint32, 4, true); }
 	readU32BE() { return this.readImpl(DataView.prototype.getUint32, 4, false); }
 
-    // converts easy!
+	// Use this for temporary offset modification, e.g: when reading
+	// a structure *pointed to* inside another structure.
+	withOffset(where: number, cb: () => void) {
+		let last = this.tell();
+		this.seek(where, SeekDir.BEG);
+		cb();
+		this.seek(last, SeekDir.BEG);
+	}
+
     readBool() : boolean {
         let res = this.readU8();
         return res != 0;
@@ -80,7 +88,8 @@ export class BufferStream {
 		for(let i = 0; i < len; ++i)
 			str += String.fromCharCode(charReader.call(this));
 
-        // dispose of a nul terminator
+        // dispose of a nul terminator. We don't support other bare Agent formats,
+		// so we shouldn't need to add the "support" for that.
         charReader.call(this);
         return str;
     }
@@ -93,9 +102,13 @@ export class BufferStream {
 		return this.readString(len, charReader);
 	}
 
-    readDataChunk(lengthReader: (this: BufferStream) => number = BufferStream.prototype.readU32LE) {
+	readDataChunkBuffer(lengthReader: (this: BufferStream) => number = BufferStream.prototype.readU32LE) {
 		let len = lengthReader.call(this);
-		return this.subBuffer(len).raw();
+		return this.subBuffer(len);
+	}
+
+    readDataChunk(lengthReader: (this: BufferStream) => number = BufferStream.prototype.readU32LE) {
+		return this.readDataChunkBuffer(lengthReader).raw();
 	}
 
     // reads a counted list. The length reader is on the other end so you don't need to specify it
@@ -103,6 +116,8 @@ export class BufferStream {
     readCountedList<TObject>(objReader: (stream: BufferStream) => TObject, lengthReader: (this: BufferStream) => number = BufferStream.prototype.readU32LE): TObject[] {
 		let len = lengthReader.call(this);
 		let arr: TObject[] = [];
+		if(len == 0)
+			return arr;
 
 		for(let i = 0; i < len; ++i)
             arr.push(objReader(this));

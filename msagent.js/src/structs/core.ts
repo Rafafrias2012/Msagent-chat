@@ -1,56 +1,116 @@
-import { BufferStream, SeekDir } from "../buffer.js";
+import { BufferStream, SeekDir } from '../buffer.js';
+
+// Win32 Rect
+export class RECT {
+	left = 0;
+	top = 0;
+	right = 0;
+	bottom = 0;
+
+	static read(buffer: BufferStream) {
+		let rect = new RECT();
+		rect.left = buffer.readU32LE();
+		rect.top = buffer.readU32LE();
+		rect.right = buffer.readU32LE();
+		rect.bottom = buffer.readU32LE();
+		return rect;
+	}
+}
+
+export class RGNDATAHEADER {
+	size = 0x20; // I think?
+	type = 1;
+	count = 0;
+	rgnSize = 0;
+	bound = new RECT();
+
+	static read(buffer: BufferStream) {
+		let hdr = new RGNDATAHEADER();
+
+		hdr.size = buffer.readU32LE();
+		//if(hdr.size != 0x20)
+		//    throw new Error("Invalid RGNDATAHEADER!");
+
+		hdr.type = buffer.readU32LE();
+		if (hdr.type != 1) throw new Error('Invalid RGNDATAHEADER type!');
+
+		hdr.count = buffer.readU32LE();
+		hdr.rgnSize = buffer.readU32LE();
+
+		hdr.bound = RECT.read(buffer);
+
+		return hdr;
+	}
+}
+
+export class RGNDATA {
+	header = new RGNDATAHEADER();
+	rects: RECT[] = [];
+
+	static read(buffer: BufferStream) {
+		let region = new RGNDATA();
+		region.header = RGNDATAHEADER.read(buffer);
+
+		for (let i = 0; i < region.header.count; ++i) {
+			region.rects.push(RECT.read(buffer));
+		}
+
+		return region;
+	}
+}
 
 export class GUID {
-    bytes: number[] = [];
+	bytes: number[] = [];
 
-    static read(buffer: BufferStream) {
-        let guid = new GUID();
+	static read(buffer: BufferStream) {
+		let guid = new GUID();
 
-        for(var i = 0; i < 16; ++i)
-            guid.bytes.push(buffer.readU8());
+		for (var i = 0; i < 16; ++i) {
+			guid.bytes.push(buffer.readU8());
+		}
 
-        return guid;
-    }
-};
+		return guid;
+	}
+}
 
 export class LOCATION {
-    offset: number = 0;
-    size: number = 0;
+	offset: number = 0;
+	size: number = 0;
 
-    static read(buffer: BufferStream) {
-        let loc = new LOCATION();
-        loc.offset = buffer.readU32LE();
-        loc.size = buffer.readU32LE();
-        return loc;
-    }
-};
+	static read(buffer: BufferStream) {
+		let loc = new LOCATION();
+		loc.offset = buffer.readU32LE();
+		loc.size = buffer.readU32LE();
+		return loc;
+	}
+}
 
 export class RGBAColor {
-    r = 0;
-    g = 0;
-    b = 0;
-    a = 0;
+	r = 0;
+	g = 0;
+	b = 0;
+	a = 0;
 
-    // Does what it says on the tin, converts to RGBA
-    to_rgba(): number {
-        return (this.r << 24) | (this.g << 16) | (this.b << 8) | this.a;
-    }
+	// Does what it says on the tin, converts to RGBA
+	to_rgba(): number {
+		return (this.r << 24) | (this.g << 16) | (this.b << 8) | this.a;
+	}
 
-    static from_gdi_rgbquad(val: number) {
-        let quad = new RGBAColor();
+	static from_gdi_rgbquad(val: number) {
+		let quad = new RGBAColor();
 
-        // Extract individual RGB values from the RGBQUAD
-        // We ignore the last 8 bits because it is always left
-        // as 0x00 or if uncleared, just random garbage.
-        quad.r = (val & 0xff000000) >> 24;
-        quad.g = (val & 0x00ff0000) >> 16;
-        quad.b = (val & 0x0000ff00) >> 8;
-        quad.a = 255;
+		// Extract individual RGB values from the RGBQUAD
+		// We ignore the last 8 bits because it is always left
+		// as 0x00 or if uncleared, just random garbage.
+		quad.r = (val & 0xff000000) >> 24;
+		quad.g = (val & 0x00ff0000) >> 16;
+		quad.b = (val & 0x0000ff00) >> 8;
+		quad.a = 255;
 
-        return quad;
-    }
+		return quad;
+	}
 
-    static read(buffer: BufferStream) {
-        return RGBAColor.from_gdi_rgbquad(buffer.readU32LE());
-    }
+	static read(buffer: BufferStream) {
+		return RGBAColor.from_gdi_rgbquad(buffer.readU32LE());
+	}
 }
