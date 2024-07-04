@@ -2,6 +2,7 @@ import { wordballoonInit } from "./wordballoon.js";
 
 export * from "./types.js";
 export * from "./character.js";
+export * from "./decompress.js";
 export * from "./sprite.js";
 export * from "./wordballoon.js";
 
