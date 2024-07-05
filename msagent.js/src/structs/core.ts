@@ -1,4 +1,5 @@
 import { BufferStream, SeekDir } from '../buffer.js';
+import { compressDecompress } from '../decompress.js';
 
 // Win32 Rect
 export class RECT {
@@ -113,4 +114,25 @@ export class RGBAColor {
 	static read(buffer: BufferStream) {
 		return RGBAColor.from_gdi_rgbquad(buffer.readU32LE());
 	}
+}
+
+export class COMPRESSED_DATABLOCK {
+  data: Uint8Array = new Uint8Array();
+
+  static read(buffer: BufferStream) {
+	let compressed = new COMPRESSED_DATABLOCK();
+
+	let compressedSize = buffer.readU32LE();
+	let uncompressedSize = buffer.readU32LE();
+
+	if(compressedSize == 0)
+		compressed.data = buffer.subBuffer(uncompressedSize).raw();
+	else {
+		let data = buffer.subBuffer(compressedSize).raw();
+		compressed.data = new Uint8Array(uncompressedSize);
+		compressDecompress(data, compressed.data);
+	}
+
+	return compressed;
+  }
 }

@@ -3,11 +3,13 @@ import { BufferStream, SeekDir } from './buffer.js';
 import { LOCATION } from './structs/core.js';
 import { AcsCharacterInfo } from './structs/character.js';
 import { AcsAnimationEntry } from './structs/animation.js';
+import { AcsImageEntry } from './structs/image.js';
 
 // Experiment for storing parsed data
 class AcsData {
 	characterInfo = new AcsCharacterInfo();
 	animInfo: AcsAnimationEntry[] = [];
+	images: AcsImageEntry[] = [];
 }
 
 function logOffset(o: number, name: string) {
@@ -41,6 +43,12 @@ function agentCharacterParseACS(buffer: BufferStream) {
 	buffer.withOffset(animationInfoLocation.offset, () => {
 		acsData.animInfo = buffer.readCountedList(() => {
 			return AcsAnimationEntry.read(buffer);
+		});
+	});
+
+	buffer.withOffset(imageInfoLocation.offset, () => {
+		acsData.images = buffer.readCountedList(() => {
+			return AcsImageEntry.read(buffer);
 		});
 	});
 
