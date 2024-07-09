@@ -4,9 +4,10 @@ import { LOCATION } from './structs/core.js';
 import { AcsCharacterInfo } from './structs/character.js';
 import { AcsAnimationEntry } from './structs/animation.js';
 import { AcsImageEntry } from './structs/image.js';
+import { Agent } from './agent.js';
 
 // Experiment for storing parsed data
-class AcsData {
+export class AcsData {
 	characterInfo = new AcsCharacterInfo();
 	animInfo: AcsAnimationEntry[] = [];
 	images: AcsImageEntry[] = [];
@@ -53,12 +54,13 @@ function agentCharacterParseACS(buffer: BufferStream) {
 	});
 
 	console.log(acsData);
+	return acsData;
 }
 
 // For the testbed code only, remove when that gets axed
 // (or don't, I'm not your dad)
 export function agentParseCharacterTestbed(buffer: Uint8Array) {
-	return agentCharacterParseACS(new BufferStream(buffer));
+	return new Agent(agentCharacterParseACS(new BufferStream(buffer)));
 }
 
 // TODO this will be the public API
