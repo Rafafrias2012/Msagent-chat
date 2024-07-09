@@ -19,7 +19,7 @@ export class RECT {
 }
 
 export class RGNDATAHEADER {
-	size = 0x20; // I think?
+	size = 0x20;
 	type = 1;
 	count = 0;
 	rgnSize = 0;
@@ -29,11 +29,11 @@ export class RGNDATAHEADER {
 		let hdr = new RGNDATAHEADER();
 
 		hdr.size = buffer.readU32LE();
-		//if(hdr.size != 0x20)
-		//    throw new Error("Invalid RGNDATAHEADER!");
+		if(hdr.size != 0x20)
+		    throw new Error("Invalid RGNDATAHEADER!");
 
 		hdr.type = buffer.readU32LE();
-		if (hdr.type != 1) throw new Error('Invalid RGNDATAHEADER type!');
+		if (hdr.type != 1) throw new Error('Invalid RGNDATAHEADER type (only rectangles are supported)!');
 
 		hdr.count = buffer.readU32LE();
 		hdr.rgnSize = buffer.readU32LE();

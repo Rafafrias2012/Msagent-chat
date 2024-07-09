@@ -55,8 +55,13 @@ export class AcsImage {
 			image.data = data;
 		}
 
+
+
         // this will be a rgndata (TODO) read this
-        //let temp = COMPRESSED_DATABLOCK.read(buffer);
+        let temp = COMPRESSED_DATABLOCK.read(buffer);
+		let tempBuffer = new BufferStream(temp.data);
+
+		image.regionData = RGNDATA.read(tempBuffer);
 
         return image;
 	}
