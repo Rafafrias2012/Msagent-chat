@@ -1,3 +1,4 @@
+import { compressInit } from "./decompress.js";
 import { wordballoonInit } from "./wordballoon.js";
 
 export * from "./types.js";
@@ -9,5 +10,6 @@ export * from "./wordballoon.js";
 
 // Convinence function which initalizes all of msagent.js.
 export async function agentInit() {
+    await compressInit();
     await wordballoonInit();
 }
