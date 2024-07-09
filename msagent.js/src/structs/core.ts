@@ -29,8 +29,7 @@ export class RGNDATAHEADER {
 		let hdr = new RGNDATAHEADER();
 
 		hdr.size = buffer.readU32LE();
-		if(hdr.size != 0x20)
-		    throw new Error("Invalid RGNDATAHEADER!");
+		if (hdr.size != 0x20) throw new Error('Invalid RGNDATAHEADER!');
 
 		hdr.type = buffer.readU32LE();
 		if (hdr.type != 1) throw new Error('Invalid RGNDATAHEADER type (only rectangles are supported)!');
@@ -117,22 +116,21 @@ export class RGBAColor {
 }
 
 export class COMPRESSED_DATABLOCK {
-  data: Uint8Array = new Uint8Array();
+	data: Uint8Array = new Uint8Array();
 
-  static read(buffer: BufferStream) {
-	let compressed = new COMPRESSED_DATABLOCK();
+	static read(buffer: BufferStream) {
+		let compressed = new COMPRESSED_DATABLOCK();
 
-	let compressedSize = buffer.readU32LE();
-	let uncompressedSize = buffer.readU32LE();
+		let compressedSize = buffer.readU32LE();
+		let uncompressedSize = buffer.readU32LE();
 
-	if(compressedSize == 0)
-		compressed.data = buffer.subBuffer(uncompressedSize).raw();
-	else {
-		let data = buffer.subBuffer(compressedSize).raw();
-		compressed.data = new Uint8Array(uncompressedSize);
-		compressDecompress(data, compressed.data);
+		if (compressedSize == 0) compressed.data = buffer.subBuffer(uncompressedSize).raw();
+		else {
+			let data = buffer.subBuffer(compressedSize).raw();
+			compressed.data = new Uint8Array(uncompressedSize);
+			compressDecompress(data, compressed.data);
+		}
+
+		return compressed;
 	}
-
-	return compressed;
-  }
 }

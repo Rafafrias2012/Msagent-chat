@@ -1,29 +1,3 @@
-/*
-struct AcsImageInfo {
-    u8 unkStart;
-    u16 width;
-    u16 height;
-    bool isCompressed;
-    
-    // This algorithm is the size used for allocating
-    // the decompression buffer.
-    //     ((Width + 3) & 0xFC) * Height)
-    
-    // Data
-    DATABLOCK imageData;
-    
-    // The data here is a Win32 RGNDATA
-    COMPRESSED regionData;
-};
-
-struct AcsImageInfoPointer {
-    LOCATION imageInfoLocation;
-    u32 checksumMaybe;
-    
-    AcsImageInfo imageInfo @ imageInfoLocation.offset;
-};
-*/
-
 import { BufferStream } from '../buffer';
 import { compressDecompress } from '../decompress';
 import { COMPRESSED_DATABLOCK, LOCATION, RGNDATA } from './core';
@@ -55,9 +29,6 @@ export class AcsImage {
 			image.data = data;
 		}
 
-
-
-        // this will be a rgndata (TODO) read this
         let temp = COMPRESSED_DATABLOCK.read(buffer);
 		let tempBuffer = new BufferStream(temp.data);
 
