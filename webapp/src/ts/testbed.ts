@@ -3,6 +3,7 @@
 
 import * as msagent from "@msagent-chat/msagent.js";
 let w = window as any;
+w.agents = [];
 let input = document.getElementById("testbed-input") as HTMLInputElement;
 
 input.addEventListener("change", async () => {
@@ -11,12 +12,8 @@ input.addEventListener("change", async () => {
     console.log("Creating agent");
     let agent = msagent.agentCreateCharacter(new Uint8Array(buffer));
 
-    // destroy the previous agent
-    if(w.agent != null) {
-        w.agent.hide(true);
-    }
+    w.agents.push(agent);
 
-    w.agent = agent;
     agent.addToDom(document.body);
 
     agent.show();

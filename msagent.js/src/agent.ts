@@ -83,6 +83,10 @@ export class Agent {
 				{ once: true }
 			);
 		});
+        this.cnv.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            // TODO: Custom context menu support
+        });
 		document.addEventListener('mousemove', (e) => {
 			if (!this.dragging) return;
 			this.x += e.movementX;
@@ -180,9 +184,11 @@ export class Agent {
 	}
 
 	hide(remove: boolean = false) {
-		this.playAnimationByName('Hide', () => {
-			if (remove) this.remove();
-			else this.cnv.style.display = 'none';
-		});
+        this.playAnimationByName("Hide", () => {
+            if(remove)
+                this.remove();
+            else
+                this.cnv.style.display = 'none';
+        });
 	}
 }
