@@ -24,3 +24,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     await msagent.agentInit();
     console.log("msagent initalized!");
 })
+
+let form = document.getElementById("acsUrlForm") as HTMLFormElement;
+form.addEventListener('submit', e => {
+    e.preventDefault();
+    let url = (document.getElementById("acsUrl") as HTMLInputElement).value;
+    msagent.agentCreateCharacterFromUrl(url).then(agent => {
+        w.agents.push(agent);
+        agent.addToDom(document.body);
+        agent.show();
+        console.log(`Loaded agent from ${url}`);
+    });
+});

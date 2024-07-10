@@ -50,3 +50,9 @@ function agentCharacterParseACS(buffer: BufferStream): AcsData {
 export function agentCreateCharacter(data: Uint8Array): Agent {
 	return new Agent(agentCharacterParseACS(new BufferStream(data)));
 }
+
+export async function agentCreateCharacterFromUrl(url: string) {
+	let res = await fetch(url);
+	let data = await res.arrayBuffer();
+	return agentCreateCharacter(new Uint8Array(data));
+}
