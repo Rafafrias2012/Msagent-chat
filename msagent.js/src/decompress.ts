@@ -54,5 +54,5 @@ export function compressDecompress(src: Uint8Array, dest: Uint8Array) {
 		throw new Error(`decompression failed: ${nrBytesDecompressed} != ${dest.length}`);
 
 	// Dest will be memory[src.length..dest.length]
-	dest.set(copyBuffer.slice(src.length, dest.length), 0);
+	dest.set(copyBuffer.slice(src.length, src.length + dest.length), 0);
 }
