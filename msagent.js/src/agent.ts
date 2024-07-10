@@ -37,7 +37,7 @@ class AgentAnimationState {
 	}
 
 	nextFrame() {
-		this.char.renderFrame(this.anim.frameInfo[this.frameIndex++]);
+		this.char.drawAnimationFrame(this.anim.frameInfo[this.frameIndex++]);
 
 		if (this.frameIndex >= this.anim.frameInfo.length) {
 			this.finishCallback();
@@ -196,7 +196,7 @@ export class Agent {
 		};
 	}
 
-	renderFrame(frame: AcsAnimationFrameInfo) {
+	drawAnimationFrame(frame: AcsAnimationFrameInfo) {
 		this.ctx.clearRect(0, 0, this.cnv.width, this.cnv.height);
 		for (const mimg of frame.images) {
 			this.drawImage(this.data.images[mimg.imageIndex], mimg.xOffset, mimg.yOffset);
