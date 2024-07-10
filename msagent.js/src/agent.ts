@@ -31,11 +31,9 @@ class AgentAnimationState {
     }
 
     nextFrame() {
-        this.char.renderFrame(this.anim.frameInfo[this.frameIndex]);
-        this.frameIndex++;
+        this.char.renderFrame(this.anim.frameInfo[this.frameIndex++]);
 
         if(this.frameIndex >= this.anim.frameInfo.length) {
-            console.log("animation finished!");
             this.char.animationFinished();
             return;
         }
