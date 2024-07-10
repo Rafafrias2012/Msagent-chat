@@ -164,7 +164,7 @@ export class Agent {
 
 		// Create and start the animation state
 		this.animState = new AgentAnimationState(this, animInfo.animationData, () => {
-			this.animationFinished();
+			this.animState = null;
 			finishCallback();
 		});
 		this.animState.play();
@@ -173,10 +173,6 @@ export class Agent {
 	playAnimationByName(name: String, finishCallback: () => void) {
 		let index = this.data.animInfo.findIndex((n) => n.name == name);
 		if (index !== -1) this.playAnimation(index, finishCallback);
-	}
-
-	animationFinished() {
-		this.animState = null;
 	}
 
 	show() {

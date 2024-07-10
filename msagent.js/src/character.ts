@@ -47,9 +47,6 @@ function agentCharacterParseACS(buffer: BufferStream): AcsData {
 	return acsData;
 }
 
-// TODO this will be the public API
-// Dunno about maintaining canvases. We can pass a div into agentInit and add a characterInit() which recieves it
-// (which we then mount characters and their wordballoons into?)
 export function agentCreateCharacter(data: Uint8Array): Agent {
 	return new Agent(agentCharacterParseACS(new BufferStream(data)));
 }
