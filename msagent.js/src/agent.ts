@@ -149,6 +149,7 @@ export class Agent {
 	}
 
 	addToDom(parent: HTMLElement = document.body) {
+        if (this.cnv.parentElement) return;
 		parent.appendChild(this.cnv);
 	}
 
