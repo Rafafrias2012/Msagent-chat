@@ -1,6 +1,6 @@
 import { BufferStream, SeekDir } from './buffer.js';
 import { AcsData } from './character.js';
-import { AcsAnimationFrameInfo } from './structs/animation.js';
+import { AcsAnimation, AcsAnimationFrameInfo } from './structs/animation.js';
 import { AcsImageEntry } from './structs/image.js';
 
 // probably should be in a utility module
@@ -13,10 +13,47 @@ function dwAlign(off: number): number {
 	return ul;
 }
 
+class AgentAnimationState {
+    char: Agent;
+    anim: AcsAnimation;
+    frameIndex = 0;
+
+    interval = 0;
+
+    constructor(char: Agent, anim: AcsAnimation) {
+        this.char = char;
+        this.anim = anim;
+    }
+
+    // start playing the animation
+    play() {
+        this.nextFrame();
+    }
+
+    nextFrame() {
+        this.char.renderFrame(this.anim.frameInfo[this.frameIndex]);
+        this.frameIndex++;
+
+        if(this.frameIndex >= this.anim.frameInfo.length) {
+            console.log("animation finished!");
+            this.char.animationFinished();
+            return;
+        }
+
+        this.interval = setTimeout(() => {
+            this.nextFrame();
+        }, this.anim.frameInfo[this.frameIndex].frameDuration * 10)
+    }
+
+}
+
 export class Agent {
 	private data: AcsData;
 	private cnv: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D;
+
+    private animState: AgentAnimationState | null = null;
+
 	constructor(data: AcsData) {
 		this.data = data;
 		this.cnv = document.createElement('canvas');
@@ -25,10 +62,9 @@ export class Agent {
 		this.cnv.height = data.characterInfo.charHeight;
 		this.cnv.style.position = 'fixed';
 		this.hide();
-		this.renderFrame(this.data.animInfo[0].animationData.frameInfo[0]);
 	}
 
-	private renderFrame(frame: AcsAnimationFrameInfo) {
+	renderFrame(frame: AcsAnimationFrameInfo) {
         this.ctx.clearRect(0, 0, this.cnv.width, this.cnv.height);
 		for (const mimg of frame.images) {
 			this.drawImage(this.data.images[mimg.imageIndex], mimg.xOffset, mimg.yOffset);
@@ -72,6 +108,21 @@ export class Agent {
 	addToDom(parent: HTMLElement = document.body) {
 		parent.appendChild(this.cnv);
 	}
+
+    playAnimation(index: number) {
+        if(this.animState != null)
+            throw new Error('Cannot play multiple animations at once.');
+        let animInfo = this.data.animInfo[index];
+
+        console.log("playing animation", animInfo.name);
+        this.animState = new AgentAnimationState(this, animInfo.animationData);
+
+        this.animState.play();
+    }
+
+    animationFinished() {
+        this.animState = null;
+    }
 
 	show() {
 		this.cnv.style.display = 'block';
