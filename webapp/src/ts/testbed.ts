@@ -11,8 +11,9 @@ input.addEventListener("change", async () => {
     console.log("About to parse character");
     let agent = msagent.agentParseCharacterTestbed(new Uint8Array(buffer));
 
+    // destroy the previous agent
     if(w.agent != null) {
-        w.agent.hide();
+        w.agent.hide(true);
     }
 
     w.agent = agent;

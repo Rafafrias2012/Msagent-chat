@@ -176,12 +176,13 @@ export class Agent {
         this.playAnimationByName("Show", () => {});
 	}
 
-	hide() {
-        // TODO: play the hide animation (then clear the canvas)
-        // (if not constructing. We can probably just duplicate this one line and put it in the constructor tbh)
-
+	hide(remove: boolean = false) {
         this.playAnimationByName("Hide", () => {
-            this.cnv.style.display = 'none';
+            if(remove)
+                this.remove();
+            else
+                this.cnv.style.display = 'none';
+
         });
 	}
 }
