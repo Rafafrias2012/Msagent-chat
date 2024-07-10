@@ -45,7 +45,7 @@ export class MSAgentClient {
                 default:
                     throw new Error(`Unknown protocol ${url.protocol}`);
             }
-            url.pathname = "/socket"
+            url.pathname = "/api/socket"
             this.socket = new WebSocket(url);
             this.socket.addEventListener('open', () => res());
             this.socket.addEventListener('message', e => {

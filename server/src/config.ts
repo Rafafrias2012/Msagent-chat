@@ -4,7 +4,8 @@ export interface IConfig {
         port: number;
     }
     chat: ChatConfig;
-    tts: TTSConfig
+    tts: TTSConfig;
+    agents: AgentConfig[];
 }
 
 export interface TTSConfig {
@@ -17,4 +18,10 @@ export interface TTSConfig {
 
 export interface ChatConfig {
     charlimit: number;
+    agentsDir: string;
+}
+
+export interface AgentConfig {
+    friendlyName: string;
+    filename: string;
 }

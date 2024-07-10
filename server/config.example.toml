@@ -4,6 +4,7 @@ port = 3000
 
 [chat]
 charlimit = 100
+agentsDir = "agents/"
 
 [tts]
 enabled = true
@@ -12,3 +13,11 @@ server = "http://127.0.0.1:3001"
 voice = "Microsoft Sam"
 tempDir = "/tmp/msac-tts"
 wavExpirySeconds = 60
+
+[[agents]]
+friendlyName = "Clippy"
+filename = "CLIPPIT.ACS"
+
+[[agents]]
+friendlyName = "Rover"
+filename = "rover.acs"

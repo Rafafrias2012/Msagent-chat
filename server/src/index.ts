@@ -53,11 +53,38 @@ if (config.tts.enabled) {
     });
 }
 
+if (!config.chat.agentsDir.endsWith("/")) config.chat.agentsDir += "/";
+if (!fs.existsSync(config.chat.agentsDir)) {
+    console.error(`Directory ${config.chat.agentsDir} does not exist.`);
+    process.exit(1);
+}
+
+for (let agent of config.agents) {
+    if (!fs.existsSync(path.join(config.chat.agentsDir, agent.filename))) {
+        console.error(`${agent.filename} does not exist.`);
+        process.exit(1);
+    }
+}
+
+app.register(FastifyStatic, {
+    root: path.resolve(config.chat.agentsDir),
+    prefix: "/api/agents/",
+    decorateReply: false,
+});
+
+app.get("/api/agents", (req, res) => {
+    return config.agents.map(a => {
+        return {
+            url: `/api/agents/${a.filename}`,
+            name: a.friendlyName
+        }
+    });
+});
 
 let room = new MSAgentChatRoom(config.chat, tts);
 
 app.register(async app => {
-    app.get("/socket", {websocket: true}, (socket, req) => {
+    app.get("/api/socket", {websocket: true}, (socket, req) => {
         let client = new Client(socket, room);
         room.addClient(client);
     });
