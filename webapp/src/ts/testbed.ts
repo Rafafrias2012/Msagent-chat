@@ -6,6 +6,8 @@ let w = window as any;
 w.agents = [];
 let input = document.getElementById("testbed-input") as HTMLInputElement;
 
+let mount = document.getElementById("agent-mount") as HTMLDivElement;
+
 input.addEventListener("change", async () => {
     let buffer = await input.files![0].arrayBuffer();
 
@@ -14,7 +16,7 @@ input.addEventListener("change", async () => {
 
     w.agents.push(agent);
 
-    agent.addToDom(document.body);
+    agent.addToDom(mount);
 
     agent.show();
     console.log("Agent created");
