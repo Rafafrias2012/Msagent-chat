@@ -240,7 +240,6 @@ export class Agent {
 	addToDom(parent: HTMLElement = document.body) {
 		if (this.charDiv.parentElement) return;
 		parent.appendChild(this.charDiv);
-		('');
 	}
 
 	remove() {
