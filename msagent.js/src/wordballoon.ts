@@ -53,7 +53,7 @@ export function wordballoonDraw(ctx: CanvasRenderingContext2D, at: Point, size: 
 	ctx.fillStyle = '#ffffe7';
 
 	// Fill the inner portion of the balloon.
-	ctx.fillRect(at.x + 12, at.y + 13, size.w, size.h);
+	ctx.fillRect(at.x + 12, at.y + 12, size.w, size.h);
 
 	// draw the left side corner
 	spriteDraw(ctx, corner_sprite, at.x, at.y);
@@ -128,7 +128,7 @@ function wordWrapToStringList(text: string, maxLength: number) {
 }
 
 // This draws a wordballoon with text. This function respects the current context's font settings and does *not* modify them.
-export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, text: string, maxLen: number = 20) {
+export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, text: string, maxLen: number = 20): Rect {
 	let lines = wordWrapToStringList(text, maxLen);
 
 	// Create metrics for each line
@@ -168,5 +168,12 @@ export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, te
 
 		ctx.fillText(lines[i], rectInner.x - 12, rectInner.y + y);
 		y += height * 1.25;
+	}
+
+	return {
+		x: at.x,
+		y: at.y,
+		w: rectInner.w + (12*3) + 12,
+		h: rectInner.h + (13*3) + 18
 	}
 }

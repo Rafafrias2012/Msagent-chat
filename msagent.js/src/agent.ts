@@ -2,6 +2,8 @@ import { BufferStream, SeekDir } from './buffer.js';
 import { AcsData } from './character.js';
 import { AcsAnimation, AcsAnimationFrameInfo } from './structs/animation.js';
 import { AcsImageEntry } from './structs/image.js';
+import { Point, Size } from './types.js';
+import { wordballoonDrawText } from './wordballoon.js';
 
 // probably should be in a utility module
 function dwAlign(off: number): number {
@@ -49,8 +51,67 @@ class AgentAnimationState {
 	}
 }
 
+class AgentWordBalloonState {
+	char: Agent;
+	text: string;
+
+	balloonCanvas: HTMLCanvasElement;
+	balloonCanvasCtx: CanvasRenderingContext2D;
+
+	constructor(char: Agent, text: string) {
+		this.char = char;
+		this.text = text;
+		this.balloonCanvas = document.createElement('canvas');
+		this.balloonCanvasCtx = this.balloonCanvas.getContext('2d')!;
+
+		this.balloonCanvas.style.position = 'relative';
+
+		this.balloonCanvasCtx.font = '14px arial';
+
+		this.balloonCanvas.width = 300;
+		this.balloonCanvas.height = 300;
+
+		// hack fix for above
+		this.balloonCanvas.style.pointerEvents = 'none';
+
+		let rect = wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20);
+
+		// Second pass, actually set the element to the right width and stuffs
+		this.balloonCanvas.width = rect.w;
+		this.balloonCanvas.height = rect.h;
+
+		wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20);
+
+		this.char.getElement().appendChild(this.balloonCanvas);
+
+		this.show();
+	}
+
+	show() {
+		this.balloonCanvas.style.display = 'block';
+	}
+
+	hide() {
+		this.balloonCanvas.style.display = 'none';
+	}
+
+	finish() {
+		this.balloonCanvas.remove();
+	}
+
+	positionUpdated() {
+		let pos = this.char.getAt();
+		let size = this.char.getSize();
+
+		// TODO: fix so this isnt broken
+		this.balloonCanvas.style.top = -(this.balloonCanvas.width + size.w / 2) + 'px';
+		this.balloonCanvas.style.left = -(this.balloonCanvas.width - size.w / 2) + 'px';
+	}
+}
+
 export class Agent {
 	private data: AcsData;
+	private charDiv: HTMLDivElement;
 	private cnv: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D;
 
@@ -59,15 +120,22 @@ export class Agent {
 	private y: number;
 
 	private animState: AgentAnimationState | null = null;
+	private wordballoonState: AgentWordBalloonState | null = null;
 
 	constructor(data: AcsData) {
 		this.data = data;
+		this.charDiv = document.createElement('div');
+		this.charDiv.classList.add('agent-character');
+
+		this.charDiv.style.position = 'fixed';
+
 		this.cnv = document.createElement('canvas');
 		this.ctx = this.cnv.getContext('2d')!;
 		this.cnv.width = data.characterInfo.charWidth;
 		this.cnv.height = data.characterInfo.charHeight;
-		this.cnv.style.position = 'fixed';
 		this.cnv.style.display = 'none';
+
+		this.charDiv.appendChild(this.cnv);
 
 		this.dragging = false;
 		this.x = 0;
@@ -83,10 +151,10 @@ export class Agent {
 				{ once: true }
 			);
 		});
-        this.cnv.addEventListener('contextmenu', e => {
-            e.preventDefault();
-            // TODO: Custom context menu support
-        });
+		this.cnv.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			// TODO: Custom context menu support
+		});
 		document.addEventListener('mousemove', (e) => {
 			if (!this.dragging) return;
 			this.x += e.movementX;
@@ -103,8 +171,29 @@ export class Agent {
 		if (this.y < 0) this.y = 0;
 		if (this.x > document.documentElement.clientWidth - this.cnv.width) this.x = document.documentElement.clientWidth - this.cnv.width;
 		if (this.y > document.documentElement.clientHeight - this.cnv.height) this.y = document.documentElement.clientHeight - this.cnv.height;
-		this.cnv.style.top = this.y + 'px';
-		this.cnv.style.left = this.x + 'px';
+		this.charDiv.style.top = this.y + 'px';
+		this.charDiv.style.left = this.x + 'px';
+
+		if (this.wordballoonState) this.wordballoonState.positionUpdated();
+	}
+
+	getElement() {
+		return this.charDiv;
+	}
+
+	getAt() {
+		let point: Point = {
+			x: this.x,
+			y: this.y
+		};
+		return point;
+	}
+
+	getSize(): Size {
+		return {
+			w: this.data.characterInfo.charWidth,
+			h: this.data.characterInfo.charHeight
+		};
 	}
 
 	renderFrame(frame: AcsAnimationFrameInfo) {
@@ -149,12 +238,13 @@ export class Agent {
 	}
 
 	addToDom(parent: HTMLElement = document.body) {
-        if (this.cnv.parentElement) return;
-		parent.appendChild(this.cnv);
+		if (this.charDiv.parentElement) return;
+		parent.appendChild(this.charDiv);
+		('');
 	}
 
 	remove() {
-		this.cnv.parentElement?.removeChild(this.cnv);
+		this.charDiv.remove();
 	}
 
 	// add promise versions later.
@@ -170,9 +260,24 @@ export class Agent {
 		this.animState.play();
 	}
 
-	playAnimationByName(name: String, finishCallback: () => void) {
+	playAnimationByName(name: string, finishCallback: () => void) {
 		let index = this.data.animInfo.findIndex((n) => n.name == name);
 		if (index !== -1) this.playAnimation(index, finishCallback);
+	}
+
+	speak(text: string) {
+		if (this.wordballoonState == null) {
+			this.wordballoonState = new AgentWordBalloonState(this, text);
+			this.wordballoonState.positionUpdated();
+			this.wordballoonState.show();
+		}
+	}
+
+	stopSpeaking() {
+		if (this.wordballoonState !== null) {
+			this.wordballoonState.finish();
+			this.wordballoonState = null;
+		}
 	}
 
 	show() {
@@ -181,11 +286,9 @@ export class Agent {
 	}
 
 	hide(remove: boolean = false) {
-        this.playAnimationByName("Hide", () => {
-            if(remove)
-                this.remove();
-            else
-                this.cnv.style.display = 'none';
-        });
+		this.playAnimationByName('Hide', () => {
+			if (remove) this.remove();
+			else this.cnv.style.display = 'none';
+		});
 	}
 }
