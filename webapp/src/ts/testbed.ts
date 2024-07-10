@@ -14,7 +14,7 @@ input.addEventListener("change", async () => {
 
     agent.show();
 
-    agent.playAnimation(0);
+    agent.playAnimationByName("Show");
     console.log("parsed character");
 })
 

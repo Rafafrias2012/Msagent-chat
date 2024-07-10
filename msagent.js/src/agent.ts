@@ -118,6 +118,12 @@ export class Agent {
         this.animState.play();
     }
 
+    playAnimationByName(name: String) {
+        let index = this.data.animInfo.findIndex((n) => n.name == name);
+        if(index !== -1)
+            this.playAnimation(index);
+    }
+
     animationFinished() {
         this.animState = null;
     }
