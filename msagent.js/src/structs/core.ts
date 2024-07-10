@@ -113,7 +113,6 @@ export class RGBAColor {
 		quad.b = (val & 0x00ff0000) >> 16;
 
 		quad.a = 255;
-		console.log(val, quad);
 		return quad;
 	}
 
