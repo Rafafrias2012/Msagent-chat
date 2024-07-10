@@ -1,45 +1,86 @@
-import { AcsData } from "./character.js";
-import { AcsAnimationFrameInfo } from "./structs/animation.js";
+import { BufferStream, SeekDir } from './buffer.js';
+import { AcsData } from './character.js';
+import { AcsAnimationFrameInfo } from './structs/animation.js';
+import { AcsImageEntry } from './structs/image.js';
+
+// probably should be in a utility module
+function dwAlign(off: number): number {
+	let ul = off >>> 0;
+
+	ul += 3;
+	ul >>= 2;
+	ul <<= 2;
+	return ul;
+}
 
 export class Agent {
-    private data: AcsData;
-    private cnv: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
-    constructor(data: AcsData) {
-        this.data = data;
-        this.cnv = document.createElement("canvas");
-        this.ctx = this.cnv.getContext("2d")!;
-        this.cnv.width = data.characterInfo.charWidth;
-        this.cnv.height = data.characterInfo.charHeight;
-        this.cnv.style.position = "fixed";
-        this.hide();
-        this.renderFrame(this.data.animInfo[0].animationData.frameInfo[0]);
-    }
+	private data: AcsData;
+	private cnv: HTMLCanvasElement;
+	private ctx: CanvasRenderingContext2D;
+	constructor(data: AcsData) {
+		this.data = data;
+		this.cnv = document.createElement('canvas');
+		this.ctx = this.cnv.getContext('2d')!;
+		this.cnv.width = data.characterInfo.charWidth;
+		this.cnv.height = data.characterInfo.charHeight;
+		this.cnv.style.position = 'fixed';
+		this.hide();
+		this.renderFrame(this.data.animInfo[0].animationData.frameInfo[0]);
+	}
 
-    private renderFrame(frame: AcsAnimationFrameInfo) {
-        for (const mimg of frame.images) {
-            const img = this.data.images[mimg.imageIndex];
-            let data = this.ctx.createImageData(img.image.width, img.image.height);
-            for (let i = 0; i < img.image.data.length; i++) {
-                let px = this.data.characterInfo.palette[img.image.data[i]];
-                data.data[(i * 4)] = px.r;
-                data.data[(i * 4) + 1] = px.g;
-                data.data[(i * 4) + 2] = px.b;
-                data.data[(i * 4) + 3] = px.a;
-            }
-            this.ctx.putImageData(data, mimg.xOffset, mimg.yOffset);
-        }
-    }
+	private renderFrame(frame: AcsAnimationFrameInfo) {
+        this.ctx.clearRect(0, 0, this.cnv.width, this.cnv.height);
+		for (const mimg of frame.images) {
+			this.drawImage(this.data.images[mimg.imageIndex], mimg.xOffset, mimg.yOffset);
+		}
+	}
 
-    addToDom(parent: HTMLElement = document.body) {
-        parent.appendChild(this.cnv);
-    }
+    // Draw a single image from the agent's image table.
+	drawImage(imageEntry: AcsImageEntry, xOffset: number, yOffset: number) {
+		let rgbaBuffer = new Uint32Array(imageEntry.image.width * imageEntry.image.height);
 
-    show() {
-        this.cnv.style.display = "block";
-    }
+		let buffer = imageEntry.image.data;
+		let bufStream = new BufferStream(buffer);
 
-    hide() {
-        this.cnv.style.display = "none";
-    }
+		let rows = new Array<Uint8Array>(imageEntry.image.height - 1);
+
+        // Read all the rows bottom-up first. This idiosyncracy is due to the fact
+        // that the bitmap data is actually formatted to be used as a GDI DIB
+        // (device-independent bitmap), so it inherits all the strange baggage from that.
+		for (let y = imageEntry.image.height - 1; y >= 0; --y) {
+			let row = bufStream.subBuffer(imageEntry.image.width).raw();
+			let rowResized = row.slice(0, imageEntry.image.width);
+			rows[y] = rowResized;
+
+            // Seek to the next DWORD aligned spot to get to the next row.
+            // For most images this may mean not seeking at all.
+            bufStream.seek(dwAlign(bufStream.tell()), SeekDir.BEG);
+		}
+
+        // Next, draw the rows converted to RGBA, top down (so it's drawn as you'd expect)
+		for (let y = 0; y < imageEntry.image.height - 1; ++y) {
+			let row = rows[y];
+			for (let x = 0; x < imageEntry.image.width; ++x) {
+				rgbaBuffer[y * imageEntry.image.width + x] = this.data.characterInfo.palette[row[x]].to_rgba();
+			}
+		}
+
+		let data = new ImageData(new Uint8ClampedArray(rgbaBuffer.buffer), imageEntry.image.width, imageEntry.image.height);
+		this.ctx.putImageData(data, xOffset, yOffset);
+	}
+
+	addToDom(parent: HTMLElement = document.body) {
+		parent.appendChild(this.cnv);
+	}
+
+	show() {
+		this.cnv.style.display = 'block';
+        // TODO: play the show animation
+	}
+
+	hide() {
+        // TODO: play the hide animation (then clear the canvas)
+        // (if not constructing. We can probably just duplicate this one line and put it in the constructor tbh)
+		this.cnv.style.display = 'none';
+	}
 }

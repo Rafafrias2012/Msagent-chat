@@ -91,9 +91,9 @@ export class RGBAColor {
 	b = 0;
 	a = 0;
 
-	// Does what it says on the tin, converts to RGBA
+	// Does what it says on the tin, converts to a packed 32-bit RGBA value
 	to_rgba(): number {
-		return (this.r << 24) | (this.g << 16) | (this.b << 8) | this.a;
+		return (this.a << 24) | (this.r << 16) | (this.g << 8) | this.b;
 	}
 
 	static from_gdi_rgbquad(val: number) {
@@ -102,11 +102,18 @@ export class RGBAColor {
 		// Extract individual RGB values from the RGBQUAD
 		// We ignore the last 8 bits because it is always left
 		// as 0x00 or if uncleared, just random garbage.
-		quad.r = (val & 0xff000000) >> 24;
-		quad.g = (val & 0x00ff0000) >> 16;
-		quad.b = (val & 0x0000ff00) >> 8;
-		quad.a = 255;
 
+		// this is wrong
+		//quad.r = (val & 0xff000000) >> 24;
+		//quad.g = (val & 0x00ff0000) >> 16;
+		//quad.b = (val & 0x0000ff00) >> 8;
+
+		quad.r = (val & 0x000000ff);
+		quad.g = (val & 0x0000ff00) >> 8;
+		quad.b = (val & 0x00ff0000) >> 16;
+
+		quad.a = 255;
+		console.log(val, quad);
 		return quad;
 	}
 
