@@ -53,6 +53,10 @@ export class Agent {
 	private cnv: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D;
 
+    private dragging: boolean;
+    private x: number;
+    private y: number;
+
     private animState: AgentAnimationState | null = null;
 
 	constructor(data: AcsData) {
@@ -63,7 +67,36 @@ export class Agent {
 		this.cnv.height = data.characterInfo.charHeight;
 		this.cnv.style.position = 'fixed';
 		this.cnv.style.display = 'none';
+
+        this.dragging = false;
+        this.x = 0;
+        this.y = 0;
+        this.setLoc();
+        this.cnv.addEventListener('mousedown', () => {
+            this.dragging = true;
+            document.addEventListener('mouseup', () => {
+                this.dragging = false;
+            }, {once: true});
+        });
+        document.addEventListener('mousemove', e => {
+            if (!this.dragging) return;
+            this.x += e.movementX;
+            this.y += e.movementY;
+            this.setLoc();
+        });
+        window.addEventListener('resize', () => {
+            this.setLoc();
+        });
 	}
+
+    private setLoc() {
+        if (this.x < 0) this.x = 0;
+        if (this.y < 0) this.y = 0;
+        if (this.x > document.documentElement.clientWidth - this.cnv.width) this.x = document.documentElement.clientWidth - this.cnv.width;
+        if (this.y > document.documentElement.clientHeight - this.cnv.height) this.y = document.documentElement.clientHeight - this.cnv.height;
+        this.cnv.style.top = this.y + "px";
+        this.cnv.style.left = this.x + "px";
+    }
 
 	renderFrame(frame: AcsAnimationFrameInfo) {
         this.ctx.clearRect(0, 0, this.cnv.width, this.cnv.height);
