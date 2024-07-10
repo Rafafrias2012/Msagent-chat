@@ -16,13 +16,16 @@ function dwAlign(off: number): number {
 class AgentAnimationState {
     char: Agent;
     anim: AcsAnimation;
+
+    finishCallback: () => void;
     frameIndex = 0;
 
     interval = 0;
 
-    constructor(char: Agent, anim: AcsAnimation) {
+    constructor(char: Agent, anim: AcsAnimation, finishCallback: () => void) {
         this.char = char;
         this.anim = anim;
+        this.finishCallback = finishCallback;
     }
 
     // start playing the animation
@@ -34,7 +37,7 @@ class AgentAnimationState {
         this.char.renderFrame(this.anim.frameInfo[this.frameIndex++]);
 
         if(this.frameIndex >= this.anim.frameInfo.length) {
-            this.char.animationFinished();
+            this.finishCallback();
             return;
         }
         //@ts-ignore
@@ -59,7 +62,7 @@ export class Agent {
 		this.cnv.width = data.characterInfo.charWidth;
 		this.cnv.height = data.characterInfo.charHeight;
 		this.cnv.style.position = 'fixed';
-		this.hide();
+		this.cnv.style.display = 'none';
 	}
 
 	renderFrame(frame: AcsAnimationFrameInfo) {
@@ -107,21 +110,24 @@ export class Agent {
 		parent.appendChild(this.cnv);
 	}
 
-    playAnimation(index: number) {
+    // add promise versions later.
+    playAnimation(index: number, finishCallback: () => void) {
         if(this.animState != null)
             throw new Error('Cannot play multiple animations at once.');
         let animInfo = this.data.animInfo[index];
 
-        console.log("playing animation", animInfo.name);
-        this.animState = new AgentAnimationState(this, animInfo.animationData);
-
+        // Create and start the animation state
+        this.animState = new AgentAnimationState(this, animInfo.animationData, () => {
+            this.animationFinished();
+            finishCallback();
+        });
         this.animState.play();
     }
 
-    playAnimationByName(name: String) {
+    playAnimationByName(name: String, finishCallback: () => void) {
         let index = this.data.animInfo.findIndex((n) => n.name == name);
         if(index !== -1)
-            this.playAnimation(index);
+            this.playAnimation(index, finishCallback);
     }
 
     animationFinished() {
@@ -130,12 +136,15 @@ export class Agent {
 
 	show() {
 		this.cnv.style.display = 'block';
-        // TODO: play the show animation
+        this.playAnimationByName("Show", () => {});
 	}
 
 	hide() {
         // TODO: play the hide animation (then clear the canvas)
         // (if not constructing. We can probably just duplicate this one line and put it in the constructor tbh)
-		this.cnv.style.display = 'none';
+
+        this.playAnimationByName("Hide", () => {
+            this.cnv.style.display = 'none';
+        });
 	}
 }

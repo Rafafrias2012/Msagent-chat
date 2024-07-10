@@ -14,8 +14,6 @@ input.addEventListener("change", async () => {
     agent.addToDom(document.body);
 
     agent.show();
-
-    agent.playAnimationByName("Show");
     console.log("parsed character");
 })
 
