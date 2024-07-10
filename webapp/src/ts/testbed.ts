@@ -10,6 +10,11 @@ input.addEventListener("change", async () => {
 
     console.log("About to parse character");
     let agent = msagent.agentParseCharacterTestbed(new Uint8Array(buffer));
+
+    if(w.agent != null) {
+        w.agent.hide();
+    }
+
     w.agent = agent;
     agent.addToDom(document.body);
 

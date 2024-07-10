@@ -110,6 +110,10 @@ export class Agent {
 		parent.appendChild(this.cnv);
 	}
 
+    remove() {
+       this.cnv.parentElement?.removeChild(this.cnv);
+    }
+
     // add promise versions later.
     playAnimation(index: number, finishCallback: () => void) {
         if(this.animState != null)
