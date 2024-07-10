@@ -265,11 +265,13 @@ export class Agent {
 	}
 
 	speak(text: string) {
-		if (this.wordballoonState == null) {
-			this.wordballoonState = new AgentWordBalloonState(this, text);
-			this.wordballoonState.positionUpdated();
-			this.wordballoonState.show();
+		if (this.wordballoonState != null) {
+			this.stopSpeaking();
 		}
+		
+		this.wordballoonState = new AgentWordBalloonState(this, text);
+		this.wordballoonState.positionUpdated();
+		this.wordballoonState.show();
 	}
 
 	stopSpeaking() {
