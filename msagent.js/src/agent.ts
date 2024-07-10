@@ -37,7 +37,7 @@ class AgentAnimationState {
             this.char.animationFinished();
             return;
         }
-
+        //@ts-ignore
         this.interval = setTimeout(() => {
             this.nextFrame();
         }, this.anim.frameInfo[this.frameIndex].frameDuration * 10)
