@@ -1,6 +1,7 @@
 import { createNanoEvents, Emitter, Unsubscribe } from 'nanoevents';
 import { MSAgentAddUserMessage, MSAgentChatMessage, MSAgentInitMessage, MSAgentJoinMessage, MSAgentProtocolMessage, MSAgentProtocolMessageType, MSAgentRemoveUserMessage, MSAgentTalkMessage } from '@msagent-chat/protocol';
 import { User } from './user';
+import { agentCreateCharacterFromUrl } from '@msagent-chat/msagent.js';
 
 export interface MSAgentClientEvents {
     close: () => void;
@@ -8,6 +9,11 @@ export interface MSAgentClientEvents {
     adduser: (user: User) => void;
     remuser: (user: User) => void;
     chat: (user: User, msg: string) => void;
+}
+
+export interface APIAgentInfo {
+    friendlyName: string;
+    filename: string;
 }
 
 export class MSAgentClient {
@@ -19,10 +25,12 @@ export class MSAgentClient {
     private charlimit: number = 0;
     
     private username: string | null = null;
+    private agentContainer: HTMLElement;
     private agent: string | null = null;
 
-    constructor(url: string) {
+    constructor(url: string, agentContainer: HTMLElement) {
         this.url = url;
+        this.agentContainer = agentContainer;
         this.socket = null;
         this.events = createNanoEvents();
         this.users = [];
@@ -30,6 +38,11 @@ export class MSAgentClient {
 
     on<E extends keyof MSAgentClientEvents>(event: E, callback: MSAgentClientEvents[E]): Unsubscribe {
         return this.events.on(event, callback);
+    }
+
+    async getAgents() {
+        let res = await fetch(this.url + "/api/agents");
+        return await res.json() as APIAgentInfo[];
     }
 
     connect(): Promise<void> {
@@ -104,7 +117,7 @@ export class MSAgentClient {
         return this.charlimit;
     }
 
-    private handleMessage(data: string) {
+    private async handleMessage(data: string) {
         let msg: MSAgentProtocolMessage;
         try {
             msg = JSON.parse(data);
@@ -118,13 +131,22 @@ export class MSAgentClient {
                 this.username = initMsg.data.username;
                 this.agent = initMsg.data.agent;
                 this.charlimit = initMsg.data.charlimit;
-                this.users.push(...initMsg.data.users.map(u => new User(u.username, u.agent)));
+                for (let _user of initMsg.data.users) {
+                    let agent = await agentCreateCharacterFromUrl(this.url + "/api/agents/" + _user.agent);
+                    agent.addToDom(this.agentContainer);
+                    agent.show();
+                    let user = new User(_user.username, agent);
+                    this.users.push(user);
+                }
                 this.events.emit('join');
                 break;
             }
             case MSAgentProtocolMessageType.AddUser: {
-                let addUserMsg = msg as MSAgentAddUserMessage
-                let user = new User(addUserMsg.data.username, addUserMsg.data.agent);
+                let addUserMsg = msg as MSAgentAddUserMessage;
+                let agent = await agentCreateCharacterFromUrl(this.url + "/api/agents/" + addUserMsg.data.agent);
+                agent.addToDom(this.agentContainer);
+                agent.show();
+                let user = new User(addUserMsg.data.username, agent);
                 this.users.push(user);
                 this.events.emit('adduser', user);
                 break;
@@ -133,6 +155,7 @@ export class MSAgentClient {
                 let remUserMsg = msg as MSAgentRemoveUserMessage;
                 let user = this.users.find(u => u.username === remUserMsg.data.username);
                 if (!user) return;
+                user.agent.hide(true);
                 if (this.playingAudio.has(user!.username)) {
                     this.playingAudio.delete(user!.username);
                 }

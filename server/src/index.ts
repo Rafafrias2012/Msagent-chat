@@ -73,15 +73,10 @@ app.register(FastifyStatic, {
 });
 
 app.get("/api/agents", (req, res) => {
-    return config.agents.map(a => {
-        return {
-            url: `/api/agents/${a.filename}`,
-            name: a.friendlyName
-        }
-    });
+    return config.agents;
 });
 
-let room = new MSAgentChatRoom(config.chat, tts);
+let room = new MSAgentChatRoom(config.chat, config.agents, tts);
 
 app.register(async app => {
     app.get("/api/socket", {websocket: true}, (socket, req) => {

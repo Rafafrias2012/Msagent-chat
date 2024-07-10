@@ -1,16 +1,18 @@
 import { MSAgentAddUserMessage, MSAgentChatMessage, MSAgentInitMessage, MSAgentProtocolMessage, MSAgentProtocolMessageType, MSAgentRemoveUserMessage } from "@msagent-chat/protocol";
 import { Client } from "./client.js";
 import { TTSClient } from "./tts.js";
-import { ChatConfig } from "./config.js";
+import { AgentConfig, ChatConfig } from "./config.js";
 import * as htmlentities from 'html-entities';
 
 export class MSAgentChatRoom {
+    agents: AgentConfig[];
     clients: Client[];
     tts: TTSClient | null;
     msgId : number = 0;
     config: ChatConfig;
 
-    constructor(config: ChatConfig, tts: TTSClient | null) {
+    constructor(config: ChatConfig, agents: AgentConfig[], tts: TTSClient | null) {
+        this.agents = agents;
         this.clients = [];
         this.config = config;
         this.tts = tts;

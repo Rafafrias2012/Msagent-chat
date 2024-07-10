@@ -78,8 +78,12 @@ export class Client extends EventEmitter {
                         username = uo + i++;
                     } while (this.room.clients.some(u => u.username === username))
                 }
+                if (!this.room.agents.some(a => a.filename === joinMsg.data.agent)) {
+                    this.socket.close();
+                    return;
+                }
                 this.username = username;
-                this.agent = htmlentities.encode(joinMsg.data.agent);
+                this.agent = joinMsg.data.agent;
                 this.emit('join');
                 break;
             }

@@ -1,8 +1,10 @@
+import { Agent } from "@msagent-chat/msagent.js";
+
 export class User {
     username: string;
-    agent: string;
+    agent: Agent
     
-    constructor(username: string, agent: string) {
+    constructor(username: string, agent: Agent) {
         this.username = username;
         this.agent = agent;
     }
