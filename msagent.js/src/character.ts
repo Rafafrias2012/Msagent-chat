@@ -6,19 +6,14 @@ import { AcsAnimationEntry } from './structs/animation.js';
 import { AcsImageEntry } from './structs/image.js';
 import { Agent } from './agent.js';
 
-// Experiment for storing parsed data
+// Data
 export class AcsData {
 	characterInfo = new AcsCharacterInfo();
 	animInfo: AcsAnimationEntry[] = [];
 	images: AcsImageEntry[] = [];
 }
 
-function logOffset(o: number, name: string) {
-	let n = o >>> 0;
-	console.log(name, 'offset:', '0x' + n.toString(16));
-}
-
-function agentCharacterParseACS(buffer: BufferStream) {
+function agentCharacterParseACS(buffer: BufferStream): AcsData {
 	// Make sure the magic is correct for the ACS file.
 	if (buffer.readU32LE() != 0xabcdabc3) {
 		throw new Error('The provided data buffer does not contain valid ACS data.');
@@ -32,10 +27,6 @@ function agentCharacterParseACS(buffer: BufferStream) {
 	let imageInfoLocation = LOCATION.read(buffer);
 	let audioInfoLocation = LOCATION.read(buffer);
 
-	logOffset(characterInfoLocation.offset, 'character info');
-	logOffset(animationInfoLocation.offset, 'animation info');
-	logOffset(imageInfoLocation.offset, 'image info');
-	logOffset(audioInfoLocation.offset, 'audio info');
 
 	buffer.withOffset(characterInfoLocation.offset, () => {
 		acsData.characterInfo = AcsCharacterInfo.read(buffer);
@@ -53,19 +44,12 @@ function agentCharacterParseACS(buffer: BufferStream) {
 		});
 	});
 
-	console.log(acsData);
 	return acsData;
-}
-
-// For the testbed code only, remove when that gets axed
-// (or don't, I'm not your dad)
-export function agentParseCharacterTestbed(buffer: Uint8Array) {
-	return new Agent(agentCharacterParseACS(new BufferStream(buffer)));
 }
 
 // TODO this will be the public API
 // Dunno about maintaining canvases. We can pass a div into agentInit and add a characterInit() which recieves it
 // (which we then mount characters and their wordballoons into?)
-export function agentCreateCharacter(data: Uint8Array): Promise<void> {
-	throw new Error('Not implemented yet');
+export function agentCreateCharacter(data: Uint8Array): Agent {
+	return new Agent(agentCharacterParseACS(new BufferStream(data)));
 }

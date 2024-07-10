@@ -8,8 +8,8 @@ let input = document.getElementById("testbed-input") as HTMLInputElement;
 input.addEventListener("change", async () => {
     let buffer = await input.files![0].arrayBuffer();
 
-    console.log("About to parse character");
-    let agent = msagent.agentParseCharacterTestbed(new Uint8Array(buffer));
+    console.log("Creating agent");
+    let agent = msagent.agentCreateCharacter(new Uint8Array(buffer));
 
     // destroy the previous agent
     if(w.agent != null) {
@@ -20,7 +20,7 @@ input.addEventListener("change", async () => {
     agent.addToDom(document.body);
 
     agent.show();
-    console.log("parsed character");
+    console.log("Agent created");
 })
 
 document.addEventListener("DOMContentLoaded", async () => {
