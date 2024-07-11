@@ -168,6 +168,7 @@ export class MSAgentClient {
 				if (!user) return;
 				user.agent.hide(true);
 				if (this.playingAudio.has(user!.username)) {
+                    this.playingAudio.get(user!.username)?.pause();
 					this.playingAudio.delete(user!.username);
 				}
 				this.users.splice(this.users.indexOf(user), 1);
@@ -190,9 +191,10 @@ export class MSAgentClient {
 					audio.addEventListener('ended', () => {
 						// give a bit of time before the wordballoon disappears
 						setTimeout(() => {
-                            if (this.playingAudio.get(user!.username) === audio)
+                            if (this.playingAudio.get(user!.username) === audio) {
 							    user!.agent.stopSpeaking();
-						    this.playingAudio.delete(user!.username);
+						        this.playingAudio.delete(user!.username);
+                            }
 						}, 1000);
 					});
 

@@ -29,9 +29,6 @@ logonWindow.show();
 
 let loggingIn = false;
 elements.logonForm.addEventListener('submit', e => {
-    if (loggingIn) return;
-    loggingIn = true;
-    elements.logonButton.disabled = true;
     e.preventDefault();
     connectToRoom();
 });
@@ -50,6 +47,9 @@ async function connectToRoom() {
         alert("Please select an agent.");
         return;
     }
+    if (loggingIn) return;
+    loggingIn = true;
+    elements.logonButton.disabled = true;
     await Room.connect();
     await Room.join(elements.logonUsername.value, elements.agentSelect.value);
     elements.chatInput.maxLength = Room.getCharlimit();
