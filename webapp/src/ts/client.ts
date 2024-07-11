@@ -188,11 +188,11 @@ export class MSAgentClient {
 					this.playingAudio.set(user!.username, audio);
 
 					audio.addEventListener('ended', () => {
-						this.playingAudio.delete(user!.username);
-
 						// give a bit of time before the wordballoon disappears
 						setTimeout(() => {
-							user!.agent.stopSpeaking();
+                            if (this.playingAudio.get(user!.username) === audio)
+							    user!.agent.stopSpeaking();
+						    this.playingAudio.delete(user!.username);
 						}, 1000);
 					});
 

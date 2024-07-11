@@ -15,6 +15,10 @@ function dwAlign(off: number): number {
 	return ul;
 }
 
+function randint(min: number, max: number) {
+	return Math.floor(Math.random() * (max - min) + min);
+}
+
 // animation state (used during animation playback)
 class AgentAnimationState {
 	char: Agent;
@@ -308,6 +312,9 @@ export class Agent {
 	}
 
 	show() {
+		this.x = randint(0, document.documentElement.clientWidth - this.data.characterInfo.charWidth);
+		this.y = randint(0, document.documentElement.clientHeight - this.data.characterInfo.charHeight);
+		this.setLoc();
 		this.cnv.style.display = 'block';
 		this.playAnimationByName('Show', () => {});
 	}
