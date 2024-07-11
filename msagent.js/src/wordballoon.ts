@@ -37,7 +37,7 @@ export async function wordballoonInit() {
 }
 
 // This function returns a rect which is the usable inner contents of the box.
-export function wordballoonDraw(ctx: CanvasRenderingContext2D, at: Point, size: Size): Rect {
+export function wordballoonDraw(ctx: CanvasRenderingContext2D, at: Point, size: Size, hasTip: boolean = true): Rect {
 	// Snap the size to a clean 12x12 system,
 	// so we stay (as close to) pixel perfect as possible.
 	// This is "lazy" but oh well. It works!
@@ -93,7 +93,8 @@ export function wordballoonDraw(ctx: CanvasRenderingContext2D, at: Point, size: 
     // For now, we always simply use the center of the bottom..
 
 	// Draw the tip.
-	spriteDraw(ctx, tip_sprite, at.x + size.w / 2, at.y + 12 * (j + 1) - 1);
+	if (hasTip)
+		spriteDraw(ctx, tip_sprite, at.x + size.w / 2, at.y + 12 * (j + 1) - 1);
 
 	ctx.restore();
 
@@ -128,7 +129,7 @@ function wordWrapToStringList(text: string, maxLength: number) {
 }
 
 // This draws a wordballoon with text. This function respects the current context's font settings and does *not* modify them.
-export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, text: string, maxLen: number = 20): Rect {
+export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, text: string, maxLen: number = 20, hasTip: boolean = true): Rect {
 	let lines = wordWrapToStringList(text, maxLen);
 
 	// Create metrics for each line
@@ -158,7 +159,7 @@ export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, te
 	size.h = Math.floor(size.h);
 
     // Draw the word balloon and get the inner rect
-	let rectInner = wordballoonDraw(ctx, at, size);
+	let rectInner = wordballoonDraw(ctx, at, size, hasTip);
 
     // Draw all the lines of text
 	let y = 0;

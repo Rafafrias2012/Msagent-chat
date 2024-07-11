@@ -142,6 +142,7 @@ export class MSAgentClient {
 				this.charlimit = initMsg.data.charlimit;
 				for (let _user of initMsg.data.users) {
 					let agent = await agentCreateCharacterFromUrl(this.url + '/api/agents/' + _user.agent);
+                    agent.setUsername(_user.username);
 					agent.addToDom(this.agentContainer);
 					agent.show();
 					let user = new User(_user.username, agent);
@@ -153,6 +154,7 @@ export class MSAgentClient {
 			case MSAgentProtocolMessageType.AddUser: {
 				let addUserMsg = msg as MSAgentAddUserMessage;
 				let agent = await agentCreateCharacterFromUrl(this.url + '/api/agents/' + addUserMsg.data.agent);
+                agent.setUsername(addUserMsg.data.username);
 				agent.addToDom(this.agentContainer);
 				agent.show();
 				let user = new User(addUserMsg.data.username, agent);

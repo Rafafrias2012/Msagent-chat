@@ -51,16 +51,25 @@ class AgentAnimationState {
 	}
 }
 
+enum AgentWordBalloonPosition {
+	AboveCentered,
+	BelowCentered
+}
+
 class AgentWordBalloonState {
 	char: Agent;
 	text: string;
+	hasTip: boolean;
+	position: AgentWordBalloonPosition;
 
 	balloonCanvas: HTMLCanvasElement;
 	balloonCanvasCtx: CanvasRenderingContext2D;
 
-	constructor(char: Agent, text: string) {
+	constructor(char: Agent, text: string, hasTip: boolean, position: AgentWordBalloonPosition) {
 		this.char = char;
 		this.text = text;
+		this.hasTip = hasTip;
+		this.position = position;
 		this.balloonCanvas = document.createElement('canvas');
 		this.balloonCanvasCtx = this.balloonCanvas.getContext('2d')!;
 
@@ -74,13 +83,13 @@ class AgentWordBalloonState {
 		// hack fix for above
 		this.balloonCanvas.style.pointerEvents = 'none';
 
-		let rect = wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20);
+		let rect = wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20, hasTip);
 
 		// Second pass, actually set the element to the right width and stuffs
 		this.balloonCanvas.width = rect.w;
 		this.balloonCanvas.height = rect.h;
 
-		wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20);
+		wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20, hasTip);
 
 		this.char.getElement().appendChild(this.balloonCanvas);
 
@@ -101,9 +110,17 @@ class AgentWordBalloonState {
 
 	positionUpdated() {
 		let size = this.char.getSize();
-
-		this.balloonCanvas.style.top = -(this.balloonCanvas.height) + 'px';
 		this.balloonCanvas.style.left = -((this.balloonCanvas.width / 2) - (size.w / 2)) + 'px';
+		switch (this.position) {
+			case AgentWordBalloonPosition.AboveCentered: {
+				this.balloonCanvas.style.top = -(this.balloonCanvas.height) + 'px';
+				break;
+			}
+			case AgentWordBalloonPosition.BelowCentered: {
+				this.balloonCanvas.style.bottom = -(this.balloonCanvas.height) + 'px';
+				break;
+			}
+		}
 	}
 }
 
@@ -119,6 +136,7 @@ export class Agent {
 
 	private animState: AgentAnimationState | null = null;
 	private wordballoonState: AgentWordBalloonState | null = null;
+	private usernameBalloonState: AgentWordBalloonState | null = null;
 
 	constructor(data: AcsData) {
 		this.data = data;
@@ -262,12 +280,22 @@ export class Agent {
 		if (index !== -1) this.playAnimation(index, finishCallback);
 	}
 
+	setUsername(username: string) {
+		if (this.usernameBalloonState !== null) {
+			this.usernameBalloonState.finish();
+			this.usernameBalloonState = null;
+		}
+
+		this.usernameBalloonState = new AgentWordBalloonState(this, username, false, AgentWordBalloonPosition.BelowCentered);
+		this.usernameBalloonState.show();
+	}
+
 	speak(text: string) {
 		if (this.wordballoonState != null) {
 			this.stopSpeaking();
 		}
 		
-		this.wordballoonState = new AgentWordBalloonState(this, text);
+		this.wordballoonState = new AgentWordBalloonState(this, text, true, AgentWordBalloonPosition.AboveCentered);
 		this.wordballoonState.positionUpdated();
 		this.wordballoonState.show();
 	}
