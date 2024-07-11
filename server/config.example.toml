@@ -81,3 +81,7 @@ filename = "rover.acs"
 [[agents]]
 friendlyName = "Victor"
 filename = "Victor.acs"
+
+[[agents]]
+friendlyName = "Bonzi"
+filename = "Bonzi.acs"
