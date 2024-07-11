@@ -8,6 +8,7 @@ const elements = {
     logonWindow: document.getElementById("logonWindow") as HTMLDivElement,
     logonForm: document.getElementById("logonForm") as HTMLFormElement,
     logonUsername: document.getElementById("logonUsername") as HTMLInputElement,
+    logonButton: document.getElementById("logonButton") as HTMLButtonElement,
     agentSelect: document.getElementById("agentSelect") as HTMLSelectElement,
 
     chatView: document.getElementById("chatView") as HTMLDivElement,
@@ -26,7 +27,11 @@ let logonWindow = new MSWindow(elements.logonWindow, {
 
 logonWindow.show();
 
+let loggingIn = false;
 elements.logonForm.addEventListener('submit', e => {
+    if (loggingIn) return;
+    loggingIn = true;
+    elements.logonButton.disabled = true;
     e.preventDefault();
     connectToRoom();
 });
