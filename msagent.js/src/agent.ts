@@ -64,7 +64,7 @@ class AgentWordBalloonState {
 		this.balloonCanvas = document.createElement('canvas');
 		this.balloonCanvasCtx = this.balloonCanvas.getContext('2d')!;
 
-		this.balloonCanvas.style.position = 'relative';
+		this.balloonCanvas.style.position = 'absolute';
 
 		this.balloonCanvasCtx.font = '14px arial';
 
@@ -100,12 +100,10 @@ class AgentWordBalloonState {
 	}
 
 	positionUpdated() {
-		let pos = this.char.getAt();
 		let size = this.char.getSize();
 
-		// TODO: fix so this isnt broken
-		this.balloonCanvas.style.top = -(this.balloonCanvas.width + size.w / 2) + 'px';
-		this.balloonCanvas.style.left = -(this.balloonCanvas.width - size.w / 2) + 'px';
+		this.balloonCanvas.style.top = -(this.balloonCanvas.height) + 'px';
+		this.balloonCanvas.style.left = -((this.balloonCanvas.width / 2) - (size.w / 2)) + 'px';
 	}
 }
 
