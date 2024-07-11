@@ -19,5 +19,65 @@ friendlyName = "Clippy"
 filename = "CLIPPIT.ACS"
 
 [[agents]]
+friendlyName = "Courtney"
+filename = "courtney.acs"
+
+[[agents]]
+friendlyName = "Dot"
+filename = "DOT.ACS"
+
+[[agents]]
+friendlyName = "Earl"
+filename = "earl.acs"
+
+[[agents]]
+friendlyName = "F1"
+filename = "F1.ACS"
+
+[[agents]]
+friendlyName = "Genie"
+filename = "Genie.acs"
+
+[[agents]]
+friendlyName = "James"
+filename = "James.acs"
+
+[[agents]]
+friendlyName = "Links"
+filename = "Links.ACS"
+
+[[agents]]
+friendlyName = "Merlin"
+filename = "merlin.acs"
+
+[[agents]]
+friendlyName = "Mother Nature"
+filename = "Mother_NATURE.ACS"
+
+[[agents]]
+friendlyName = "Office Logo"
+filename = "Office_Logo.ACS"
+
+[[agents]]
+friendlyName = "Peedy"
+filename = "Peedy.acs"
+
+[[agents]]
+friendlyName = "Question"
+filename = "question_mark.acs"
+
+[[agents]]
+friendlyName = "Robby"
+filename = "Robby.acs"
+
+[[agents]]
+friendlyName = "Rocky"
+filename = "ROCKY.ACS"
+
+[[agents]]
 friendlyName = "Rover"
 filename = "rover.acs"
+
+[[agents]]
+friendlyName = "Victor"
+filename = "Victor.acs"

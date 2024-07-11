@@ -65,7 +65,7 @@ export class MSAgentChatRoom {
                 op: MSAgentProtocolMessageType.Chat,
                 data: {
                     username: client.username!,
-                    message: htmlentities.encode(message)
+                    message: message
                 }
             };
             if (this.tts !== null) {
