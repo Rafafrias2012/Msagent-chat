@@ -48,6 +48,7 @@ export class MSAgentClient {
 	private playingAudio: Map<string, HTMLAudioElement> = new Map();
 	private charlimit: number = 0;
 	private admin: boolean;
+	private loginCb: (e: KeyboardEvent) => void;
 
 	private username: string | null = null;
 	private agentContainer: HTMLElement;
@@ -60,6 +61,15 @@ export class MSAgentClient {
 		this.events = createNanoEvents();
 		this.users = [];
 		this.admin = false;
+
+		document.addEventListener('keydown', this.loginCb = (e: KeyboardEvent) => {
+			if (e.key === "l" && e.ctrlKey) {
+				e.preventDefault();
+				let password = window.prompt("Papers, please");
+				if (!password) return;
+				this.login(password);
+			}
+		});
 	}
 
 	on<E extends keyof MSAgentClientEvents>(event: E, callback: MSAgentClientEvents[E]): Unsubscribe {
@@ -115,6 +125,7 @@ export class MSAgentClient {
 			});
 			this.socket.addEventListener('close', () => {
 				this.events.emit('close');
+				document.removeEventListener('keydown', this.loginCb);
 			});
 		});
 	}
@@ -252,14 +263,6 @@ export class MSAgentClient {
 					this.setContextMenu(user);
 					this.users.push(user);
 				}
-				document.addEventListener('keydown', e => {
-					if (e.key === "l" && e.ctrlKey) {
-						e.preventDefault();
-						let password = window.prompt("Papers, please");
-						if (!password) return;
-						this.login(password);
-					}
-				});
 				this.events.emit('join');
 				break;
 			}
