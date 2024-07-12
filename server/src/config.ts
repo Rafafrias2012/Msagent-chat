@@ -24,6 +24,7 @@ export interface ChatConfig {
     agentsDir: string;
     maxConnectionsPerIP: number;
     adminPasswordHash: string;
+    bannedWords: string[];
     ratelimits: {
         chat: RateLimitConfig;
     }

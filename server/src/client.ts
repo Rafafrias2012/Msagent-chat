@@ -103,6 +103,10 @@ export class Client extends EventEmitter {
                     return;
                 }
                 let username = htmlentities.encode(joinMsg.data.username);
+                if (this.room.config.bannedWords.some(w => username.indexOf(w) !== -1)) {
+                    this.socket.close();
+                    return;
+                }
                 if (this.room.clients.some(u => u.username === username)) {
                     let i = 1;
                     let uo = username;
@@ -125,6 +129,9 @@ export class Client extends EventEmitter {
                     return;
                 }
                 if (talkMsg.data.msg.length > this.room.config.charlimit) return;
+                if (this.room.config.bannedWords.some(w => talkMsg.data.msg.indexOf(w) !== -1)) {
+                    return;
+                }
                 this.emit('talk', talkMsg.data.msg);
                 break;
             }
