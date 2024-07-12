@@ -185,6 +185,8 @@ export class MSAgentClient {
 			} else {
 				mute.setName("Unmute");
 				_user.muted = true;
+				_user.agent.stopSpeaking();
+				this.playingAudio.get(_user.username)?.pause();
 			}
 		});
 		ctx.addItem(mute);
