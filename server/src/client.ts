@@ -3,6 +3,7 @@ import { WebSocket } from "ws";
 import { MSAgentJoinMessage, MSAgentProtocolMessage, MSAgentProtocolMessageType, MSAgentTalkMessage } from '@msagent-chat/protocol';
 import { MSAgentChatRoom } from "./room.js";
 import * as htmlentities from 'html-entities';
+import RateLimiter from "./ratelimiter.js";
 
 // Event types
 
@@ -15,17 +16,25 @@ export interface Client {
 }
 
 export class Client extends EventEmitter {
+    ip: string;
     username: string | null;
     agent: string | null;
 
     room: MSAgentChatRoom;
     socket: WebSocket;
-    constructor(socket: WebSocket, room: MSAgentChatRoom) {
+
+    chatRateLimit: RateLimiter
+
+    constructor(socket: WebSocket, room: MSAgentChatRoom, ip: string) {
         super();
         this.socket = socket;
+        this.ip = ip;
         this.room = room;
         this.username = null;
         this.agent = null;
+        
+        this.chatRateLimit = new RateLimiter(this.room.config.ratelimits.chat);
+
         this.socket.on('message', (msg, isBinary) => {
             if (isBinary) {
                 this.socket.close();
@@ -89,7 +98,7 @@ export class Client extends EventEmitter {
             }
             case MSAgentProtocolMessageType.Talk: {
                 let talkMsg = msg as MSAgentTalkMessage;
-                if (!talkMsg.data || !talkMsg.data.msg) {
+                if (!talkMsg.data || !talkMsg.data.msg || !this.chatRateLimit.request()) {
                     return;
                 }
                 if (talkMsg.data.msg.length > this.room.config.charlimit) return;

@@ -2,6 +2,7 @@ export interface IConfig {
     http: {
         host: string;
         port: number;
+        proxied: boolean;
     }
     chat: ChatConfig;
     tts: TTSConfig;
@@ -19,9 +20,20 @@ export interface TTSConfig {
 export interface ChatConfig {
     charlimit: number;
     agentsDir: string;
+    maxConnectionsPerIP: number;
+    ratelimits: {
+        chat: RateLimitConfig;
+    }
 }
 
 export interface AgentConfig {
     friendlyName: string;
     filename: string;
+}
+
+
+
+export interface RateLimitConfig {
+    seconds: number;
+    limit: number;
 }

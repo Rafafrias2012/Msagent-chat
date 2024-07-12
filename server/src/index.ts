@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import { TTSClient } from './tts.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { isIP } from 'net';
 
 let config: IConfig;
 let configPath: string;
@@ -80,7 +81,32 @@ let room = new MSAgentChatRoom(config.chat, config.agents, tts);
 
 app.register(async app => {
     app.get("/api/socket", {websocket: true}, (socket, req) => {
-        let client = new Client(socket, room);
+        // TODO: Do this pre-upgrade and return the appropriate status codes
+        let ip: string;
+        if (config.http.proxied) {
+            if (req.headers["x-forwarded-for"] === undefined) {
+                console.error(`Warning: X-Forwarded-For not set! This is likely a misconfiguration of your reverse proxy.`);
+                socket.close();
+                return;
+            }
+            let xff = req.headers["x-forwarded-for"];
+            if (xff instanceof Array)
+                ip = xff[0];
+            else
+                ip = xff;
+            if (!isIP(ip)) {
+                console.error(`Warning: X-Forwarded-For malformed! This is likely a misconfiguration of your reverse proxy.`);
+                socket.close();
+                return;
+            }
+        } else {
+            ip = req.ip;
+        }
+        let o = room.clients.filter(c => c.ip === ip);
+        if (o.length >= config.chat.maxConnectionsPerIP) {
+            o[0].socket.close();
+        }
+        let client = new Client(socket, room, ip);
         room.addClient(client);
     });
 });
