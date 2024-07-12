@@ -13,7 +13,15 @@ export class AcsData {
 	images: AcsImageEntry[] = [];
 }
 
-function agentCharacterParseACS(buffer: BufferStream): AcsData {
+// Cache of ACS data per character (for agentCreateCharacterFromUrl)
+let acsDataCache = new Map<string, AcsData>();
+
+// Purges the ACS cache.
+export function agentPurgeACSCache() {
+	acsDataCache.clear();
+}
+
+export function agentCharacterParseACS(buffer: BufferStream): AcsData {
 	// Make sure the magic is correct for the ACS file.
 	if (buffer.readU32LE() != 0xabcdabc3) {
 		throw new Error('The provided data buffer does not contain valid ACS data.');
@@ -47,12 +55,22 @@ function agentCharacterParseACS(buffer: BufferStream): AcsData {
 	return acsData;
 }
 
-export function agentCreateCharacter(data: Uint8Array): Agent {
-	return new Agent(agentCharacterParseACS(new BufferStream(data)));
+export function agentCreateCharacter(data: AcsData): Agent {
+	return new Agent(data);
 }
 
-export async function agentCreateCharacterFromUrl(url: string) {
-	let res = await fetch(url);
-	let data = await res.arrayBuffer();
-	return agentCreateCharacter(new Uint8Array(data));
+export async function agentCreateCharacterFromUrl(url: string) : Promise<Agent> {
+	// just return the cache object
+	if(acsDataCache.has(url)) {
+		return agentCreateCharacter(acsDataCache.get(url)!);
+	} else {
+		let res = await fetch(url);
+		let data = await res.arrayBuffer();
+
+		let buffer = new Uint8Array(data);
+		let acsData = agentCharacterParseACS(new BufferStream(buffer));
+
+		acsDataCache.set(url, acsData);
+		return agentCreateCharacter(acsData);
+	}
 }
