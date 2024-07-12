@@ -71,7 +71,7 @@ export class MSAgentClient {
 			this.socket = new WebSocket(url);
 			this.socket.addEventListener('open', () => res());
 			this.socket.addEventListener('message', (e) => {
-				if (e.data instanceof ArrayBuffer) {
+				if (e.data instanceof Blob || e.data instanceof ArrayBuffer) {
 					// server should not send binary
 					return;
 				}
@@ -79,6 +79,8 @@ export class MSAgentClient {
 			});
 			this.socket.addEventListener('close', () => {
 				this.events.emit('close');
+                // TODO: Make this clean
+                window.location.reload();
 			});
 		});
 	}
