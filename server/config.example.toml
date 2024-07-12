@@ -18,6 +18,19 @@ adminPasswordHash = "f52fbd32b2b3b86ff88ef6c490628285f482af15ddcb29541f94bcf526a
 [chat.ratelimits]
 chat = {seconds = 10, limit = 8}
 
+[motd]
+version = 1
+html = """
+<h2>Welcome to Agent Chat!</h2>
+<h3>Rules</h3>
+<ol>
+    <li>Do not break US federal law or the law of the State of New Jersey</li>
+    <li>Be respectful of everyone regardless of background or opinions. We have absolutely no tolerance for hate speech. Do not harass other users.</li>
+    <li>Do not post anything NSFW (porn, hentai, lewd imagery, etc). The posting of Child Sexual Abuse Material will result in an immediate ban and report to the National Center for Missing and Exploited Children</li>
+    <li>Do not spam in the chat and do not use bots without permission.</li>
+</ol>
+"""
+
 [tts]
 enabled = true
 # https://git.computernewb.com/computernewb/SAPIServer

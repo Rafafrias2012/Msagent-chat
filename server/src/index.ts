@@ -82,6 +82,18 @@ app.get("/api/agents", (req, res) => {
     return config.agents;
 });
 
+// MOTD
+
+app.get("/api/motd/version", (req, res) => {
+    res.header("Content-Type", "text/plain");
+    return config.motd.version.toString();
+});
+
+app.get("/api/motd/html", (req, res) => {
+    res.header("Content-Type", "text/html");
+    return config.motd.html;
+});
+
 let room = new MSAgentChatRoom(config.chat, config.agents, db, tts);
 
 app.register(async app => {

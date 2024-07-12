@@ -4,6 +4,10 @@ import { MSAgentClient } from "./client.js";
 
 
 const elements = {
+    motdWindow: document.getElementById("motdWindow") as HTMLDivElement,
+    motdContainer: document.getElementById("motdContainer") as HTMLDivElement,
+    rulesLink: document.getElementById("rulesLink") as HTMLAnchorElement,
+
     logonView: document.getElementById("logonView") as HTMLDivElement,
     logonWindow: document.getElementById("logonWindow") as HTMLDivElement,
     logonForm: document.getElementById("logonForm") as HTMLFormElement,
@@ -33,10 +37,16 @@ function roomInit() {
     });
 }
 
+let motdWindow = new MSWindow(elements.motdWindow, {
+    minWidth: 600,
+    minHeight: 300,
+    maxWidth: 600,
+    startPosition: MSWindowStartPosition.Center
+});
+
 let logonWindow = new MSWindow(elements.logonWindow, {
-    width: 500,
-    height: 275,
-    hasClose: false,
+    minWidth: 500,
+    minHeight: 275,
     startPosition: MSWindowStartPosition.Center
 });
 
@@ -81,6 +91,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         option.value = agent.filename;
         elements.agentSelect.appendChild(option);
     }
+    let motd = await Room.getMotd();
+    elements.motdContainer.innerHTML = motd.html;
+    let ver = localStorage.getItem("msagent-chat-motd-version");
+    if (!ver || parseInt(ver) !== motd.version) {
+        motdWindow.show();
+        localStorage.setItem("msagent-chat-motd-version", motd.version.toString());
+    }
+    elements.rulesLink.addEventListener('click', () => {
+        motdWindow.show();
+    })
 });
 
 function talk() {

@@ -35,6 +35,11 @@ export interface APIAgentInfo {
 	filename: string;
 }
 
+export interface MOTD {
+	version: number;
+	html: string;
+}
+
 export class MSAgentClient {
 	private url: string;
 	private socket: WebSocket | null;
@@ -64,6 +69,21 @@ export class MSAgentClient {
 	async getAgents() {
 		let res = await fetch(this.url + '/api/agents');
 		return (await res.json()) as APIAgentInfo[];
+	}
+
+	async getMotd(): Promise<MOTD> {
+		let res = await fetch(this.url + "/api/motd/version");
+		let vs = await res.text();
+		let version = parseInt(vs);
+		if (isNaN(version)) {
+			throw new Error("Version was NaN");
+		}
+		res = await fetch(this.url + "/api/motd/html");
+		let html = await res.text();
+		return {
+			version,
+			html
+		};
 	}
 
 	getUsers() {

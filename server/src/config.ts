@@ -6,6 +6,7 @@ export interface IConfig {
     }
     mysql: MySQLConfig;
     chat: ChatConfig;
+    motd: motdConfig
     tts: TTSConfig;
     agents: AgentConfig[];
 }
@@ -26,6 +27,11 @@ export interface ChatConfig {
     ratelimits: {
         chat: RateLimitConfig;
     }
+}
+
+export interface motdConfig {
+    version: number;
+    html: string;
 }
 
 export interface AgentConfig {

@@ -1,7 +1,8 @@
 export interface MSWindowConfig {
-    width: number,
-    height: number,
-    hasClose: boolean;
+    minWidth: number,
+    minHeight: number,
+    maxWidth?: number | undefined,
+    maxHeight?: number | undefined,
     startPosition: MSWindowStartPosition
 }
 
@@ -12,6 +13,7 @@ export enum MSWindowStartPosition {
 
 export class MSWindow {
     wnd: HTMLDivElement;
+    closeBtn: HTMLButtonElement | undefined;
     config: MSWindowConfig;
     titlebar: HTMLDivElement;
     body: HTMLDivElement;
@@ -23,14 +25,27 @@ export class MSWindow {
         this.shown = false;
         this.wnd = wnd;
         this.config = config;
-        this.wnd.style.width = config.width + "px";
-        this.wnd.style.height = config.height + "px";
+        this.wnd.style.minWidth = config.minWidth + "px";
+        this.wnd.style.minHeight = config.minHeight + "px";
+        if (config.maxWidth) {
+            this.wnd.style.maxWidth = config.maxWidth + "px";
+        }
+        if (config.maxHeight) {
+            this.wnd.style.maxHeight = config.maxHeight + "px";
+        }
         let titlebar = this.wnd.querySelector("div.title-bar");
         let body = this.wnd.querySelector("div.window-body");
         if (!titlebar || !body)
             throw new Error("MSWindow is missing titlebar or body element.");
         this.titlebar = titlebar as HTMLDivElement;
         this.body = body as HTMLDivElement;
+        let closeBtn = this.titlebar.querySelector("div.title-bar-controls > button[aria-label='Close']") as HTMLButtonElement;
+        if (closeBtn) {
+            this.closeBtn = closeBtn;
+            closeBtn.addEventListener('click', () => {
+                this.hide();
+            });
+        }
         // Register window move handlers
         this.dragging = false;
         switch (this.config.startPosition) {
@@ -40,8 +55,8 @@ export class MSWindow {
                 break;
             }
             case MSWindowStartPosition.Center: {
-                this.x = (document.documentElement.clientWidth / 2) - (this.config.width / 2);
-                this.y = (document.documentElement.clientHeight / 2) - (this.config.height / 2);
+                this.x = (document.documentElement.clientWidth / 2) - (this.config.minWidth / 2);
+                this.y = (document.documentElement.clientHeight / 2) - (this.config.minHeight / 2);
                 break;
             }
             default: {
@@ -79,8 +94,8 @@ export class MSWindow {
     private setLoc() {
         if (this.x < 0) this.x = 0;
         if (this.y < 0) this.y = 0;
-        if (this.x > document.documentElement.clientWidth - this.config.width) this.x = document.documentElement.clientWidth - this.config.width;
-        if (this.y > document.documentElement.clientHeight - this.config.height) this.y = document.documentElement.clientHeight - this.config.height;
+        if (this.x > document.documentElement.clientWidth - this.config.minWidth) this.x = document.documentElement.clientWidth - this.config.minWidth;
+        if (this.y > document.documentElement.clientHeight - this.config.minHeight) this.y = document.documentElement.clientHeight - this.config.minHeight;
         this.wnd.style.top = this.y + "px";
         this.wnd.style.left = this.x + "px";
     }

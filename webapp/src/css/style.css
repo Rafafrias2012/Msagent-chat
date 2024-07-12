@@ -19,6 +19,41 @@ body {
     }
 }
 
+#motdContainer {
+    font-family: "Arial", sans-serif;
+}
+
+#bottomLinks {
+    font-family: "Pixelated MS Sans Serif", Arial;
+    li {
+        display: inline;
+        border-right: 1px solid black;
+        padding: 0;
+        margin: 0;
+        padding-right: 0.2rem;
+        margin-right: 0.2rem;
+        a {
+            font-size: 14pt;
+            color: #fff;
+        }
+        a:visited {
+            font-size: 14pt;
+            color: #fff;
+        }
+    }
+    li:last-child {
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
+    }
+    list-style: none;
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 #logonWindowLogo {
     background-color: #ffffff;
     margin: 0;
