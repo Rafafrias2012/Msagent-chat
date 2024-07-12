@@ -129,7 +129,7 @@ function wordWrapToStringList(text: string, maxLength: number) {
 }
 
 // This draws a wordballoon with text. This function respects the current context's font settings and does *not* modify them.
-export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, text: string, maxLen: number = 20, hasTip: boolean = true): Rect {
+export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, text: string, maxLen: number = 20, hasTip: boolean = true, color: string = "#000000"): Rect {
 	let lines = wordWrapToStringList(text, maxLen);
 
 	// Create metrics for each line
@@ -167,6 +167,7 @@ export function wordballoonDrawText(ctx: CanvasRenderingContext2D, at: Point, te
 		let metric = metrics[i];
 		let height = metric.actualBoundingBoxAscent + metric.actualBoundingBoxDescent;
 
+		ctx.fillStyle = color;
 		ctx.fillText(lines[i], rectInner.x - 12, rectInner.y + y);
 		y += height * 1.25;
 	}

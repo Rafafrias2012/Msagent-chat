@@ -1,8 +1,9 @@
-import { MSAgentAddUserMessage, MSAgentChatMessage, MSAgentInitMessage, MSAgentProtocolMessage, MSAgentProtocolMessageType, MSAgentRemoveUserMessage } from "@msagent-chat/protocol";
+import { MSAgentAddUserMessage, MSAgentChatMessage, MSAgentInitMessage, MSAgentPromoteMessage, MSAgentProtocolMessage, MSAgentProtocolMessageType, MSAgentRemoveUserMessage } from "@msagent-chat/protocol";
 import { Client } from "./client.js";
 import { TTSClient } from "./tts.js";
 import { AgentConfig, ChatConfig } from "./config.js";
 import * as htmlentities from 'html-entities';
+import { Database } from "./database.js";
 
 export class MSAgentChatRoom {
     agents: AgentConfig[];
@@ -10,12 +11,14 @@ export class MSAgentChatRoom {
     tts: TTSClient | null;
     msgId : number = 0;
     config: ChatConfig;
+    db: Database;
 
-    constructor(config: ChatConfig, agents: AgentConfig[], tts: TTSClient | null) {
+    constructor(config: ChatConfig, agents: AgentConfig[], db: Database, tts: TTSClient | null) {
         this.agents = agents;
         this.clients = [];
         this.config = config;
         this.tts = tts;
+        this.db = db;
     }
 
     addClient(client: Client) {
@@ -72,6 +75,17 @@ export class MSAgentChatRoom {
                 let filename = await this.tts.synthesizeToFile(message, (++this.msgId).toString(10));
                 msg.data.audio = "/api/tts/" + filename;
             }
+            for (const _client of this.getActiveClients()) {
+                _client.send(msg);
+            }
+        });
+        client.on('admin', () => {
+            let msg: MSAgentPromoteMessage = {
+                op: MSAgentProtocolMessageType.Promote,
+                data: {
+                    username: client.username!
+                }
+            };
             for (const _client of this.getActiveClients()) {
                 _client.send(msg);
             }

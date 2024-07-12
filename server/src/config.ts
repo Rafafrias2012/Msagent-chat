@@ -4,6 +4,7 @@ export interface IConfig {
         port: number;
         proxied: boolean;
     }
+    mysql: MySQLConfig;
     chat: ChatConfig;
     tts: TTSConfig;
     agents: AgentConfig[];
@@ -21,6 +22,7 @@ export interface ChatConfig {
     charlimit: number;
     agentsDir: string;
     maxConnectionsPerIP: number;
+    adminPasswordHash: string;
     ratelimits: {
         chat: RateLimitConfig;
     }
@@ -32,8 +34,14 @@ export interface AgentConfig {
 }
 
 
-
 export interface RateLimitConfig {
     seconds: number;
     limit: number;
+}
+
+export interface MySQLConfig {
+    host: string;
+    username: string;
+    password: string;
+    database: string;
 }

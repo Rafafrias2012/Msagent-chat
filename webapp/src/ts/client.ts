@@ -1,16 +1,26 @@
 import { createNanoEvents, Emitter, Unsubscribe } from 'nanoevents';
 import {
 	MSAgentAddUserMessage,
+	MSAgentAdminBanMessage,
+	MSAgentAdminGetIPMessage,
+	MSAgentAdminGetIPResponse,
+	MSAgentAdminKickMessage,
+	MSAgentAdminLoginMessage,
+	MSAgentAdminLoginResponse,
+	MSAgentAdminMessage,
+	MSAgentAdminOperation,
 	MSAgentChatMessage,
+	MSAgentErrorMessage,
 	MSAgentInitMessage,
 	MSAgentJoinMessage,
+	MSAgentPromoteMessage,
 	MSAgentProtocolMessage,
 	MSAgentProtocolMessageType,
 	MSAgentRemoveUserMessage,
 	MSAgentTalkMessage
 } from '@msagent-chat/protocol';
 import { User } from './user';
-import { agentCreateCharacterFromUrl } from '@msagent-chat/msagent.js';
+import { agentCreateCharacterFromUrl, ContextMenuItem } from '@msagent-chat/msagent.js';
 
 export interface MSAgentClientEvents {
 	close: () => void;
@@ -32,6 +42,7 @@ export class MSAgentClient {
 	private users: User[];
 	private playingAudio: Map<string, HTMLAudioElement> = new Map();
 	private charlimit: number = 0;
+	private admin: boolean;
 
 	private username: string | null = null;
 	private agentContainer: HTMLElement;
@@ -43,6 +54,7 @@ export class MSAgentClient {
 		this.socket = null;
 		this.events = createNanoEvents();
 		this.users = [];
+		this.admin = false;
 	}
 
 	on<E extends keyof MSAgentClientEvents>(event: E, callback: MSAgentClientEvents[E]): Unsubscribe {
@@ -52,6 +64,10 @@ export class MSAgentClient {
 	async getAgents() {
 		let res = await fetch(this.url + '/api/agents');
 		return (await res.json()) as APIAgentInfo[];
+	}
+
+	getUsers() {
+		return this.users;
 	}
 
 	connect(): Promise<void> {
@@ -79,8 +95,6 @@ export class MSAgentClient {
 			});
 			this.socket.addEventListener('close', () => {
 				this.events.emit('close');
-                // TODO: Make this clean
-                window.location.reload();
 			});
 		});
 	}
@@ -128,6 +142,73 @@ export class MSAgentClient {
 		return this.charlimit;
 	}
 
+	setContextMenu(user: User) {
+		let ctx = user.agent.getContextMenu();
+		ctx.clearItems();
+		// Mute
+		let _user = user;
+		let mute = new ContextMenuItem("Mute", () => {
+			if (_user.muted) {
+				mute.setName("Mute");
+				_user.muted = false;
+			} else {
+				mute.setName("Unmute");
+				_user.muted = true;
+			}
+		});
+		ctx.addItem(mute);
+		// Admin
+		if (this.admin) {
+			// Get IP
+			let getip = new ContextMenuItem("Get IP", () => {
+				let msg: MSAgentAdminGetIPMessage = {
+					op: MSAgentProtocolMessageType.Admin,
+					data: {
+						action: MSAgentAdminOperation.GetIP,
+						username: _user.username
+					}
+				};
+				this.send(msg);
+			});
+			ctx.addItem(getip);
+			// Kick
+			let kick = new ContextMenuItem("Kick", () => {
+				let msg: MSAgentAdminKickMessage = {
+					op: MSAgentProtocolMessageType.Admin,
+					data: {
+						action: MSAgentAdminOperation.Kick,
+						username: _user.username
+					}
+				};
+				this.send(msg);
+			});
+			ctx.addItem(kick);
+			// Ban
+			let ban = new ContextMenuItem("Ban", () => {
+				let msg: MSAgentAdminBanMessage = {
+					op: MSAgentProtocolMessageType.Admin,
+					data: {
+						action: MSAgentAdminOperation.Ban,
+						username: _user.username
+					}
+				};
+				this.send(msg);
+			});
+			ctx.addItem(ban);
+		}
+	}
+
+	async login(password: string) {
+		let msg: MSAgentAdminLoginMessage = {
+			op: MSAgentProtocolMessageType.Admin,
+			data: {
+				action: MSAgentAdminOperation.Login,
+				password
+			}
+		};
+		await this.send(msg);
+	}
+
 	private async handleMessage(data: string) {
 		let msg: MSAgentProtocolMessage;
 		try {
@@ -144,22 +225,32 @@ export class MSAgentClient {
 				this.charlimit = initMsg.data.charlimit;
 				for (let _user of initMsg.data.users) {
 					let agent = await agentCreateCharacterFromUrl(this.url + '/api/agents/' + _user.agent);
-                    agent.setUsername(_user.username);
+                    agent.setUsername(_user.username, "#000000");
 					agent.addToDom(this.agentContainer);
 					agent.show();
 					let user = new User(_user.username, agent);
+					this.setContextMenu(user);
 					this.users.push(user);
 				}
+				document.addEventListener('keydown', e => {
+					if (e.key === "l" && e.ctrlKey) {
+						e.preventDefault();
+						let password = window.prompt("Papers, please");
+						if (!password) return;
+						this.login(password);
+					}
+				});
 				this.events.emit('join');
 				break;
 			}
 			case MSAgentProtocolMessageType.AddUser: {
 				let addUserMsg = msg as MSAgentAddUserMessage;
 				let agent = await agentCreateCharacterFromUrl(this.url + '/api/agents/' + addUserMsg.data.agent);
-                agent.setUsername(addUserMsg.data.username);
+                agent.setUsername(addUserMsg.data.username, "#000000");
 				agent.addToDom(this.agentContainer);
 				agent.show();
 				let user = new User(addUserMsg.data.username, agent);
+				this.setContextMenu(user);
 				this.users.push(user);
 				this.events.emit('adduser', user);
 				break;
@@ -180,6 +271,8 @@ export class MSAgentClient {
 			case MSAgentProtocolMessageType.Chat: {
 				let chatMsg = msg as MSAgentChatMessage;
 				let user = this.users.find((u) => u.username === chatMsg.data.username);
+				if (user?.muted) return;
+
 				this.events.emit('chat', user, chatMsg.data.message);
 				if (chatMsg.data.audio !== undefined) {
 					let audio = new Audio(this.url + chatMsg.data.audio);
@@ -203,6 +296,41 @@ export class MSAgentClient {
 					user?.agent.speak(chatMsg.data.message);
 					audio.play();
 				}
+				break;
+			}
+			case MSAgentProtocolMessageType.Admin: {
+				let adminMsg = msg as MSAgentAdminMessage;
+				switch (adminMsg.data.action) {
+					case MSAgentAdminOperation.Login: {
+						let loginMsg = adminMsg as MSAgentAdminLoginResponse;
+						if (loginMsg.data.success) {
+							this.admin = true;
+							for (const user of this.users) this.setContextMenu(user);
+						} else {
+							alert("Incorrect password!");
+						}
+						break;
+					}
+					case MSAgentAdminOperation.GetIP: {
+						let ipMsg = adminMsg as MSAgentAdminGetIPResponse;
+						alert(`${ipMsg.data.username} - ${ipMsg.data.ip}`);
+						break;
+					}
+				}
+				break;
+			}
+			case MSAgentProtocolMessageType.Promote: {
+				let promoteMsg = msg as MSAgentPromoteMessage;
+				let user = this.users.find(u => u.username === promoteMsg.data.username);
+				if (!user) return;
+				user.admin = true;
+				user.agent.setUsername(user.username, "#ff0000");
+				break;
+			}
+			case MSAgentProtocolMessageType.Error: {
+				let errorMsg = msg as MSAgentErrorMessage;
+				// TODO: This should be shown as part of the logon window
+				window.alert(errorMsg.data.error);
 				break;
 			}
 		}

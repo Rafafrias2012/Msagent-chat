@@ -81,3 +81,32 @@ body {
     font-weight: bold;
     margin-right: 4px;
 }
+
+.context-menu {
+    background-color: silver;
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.context-menu-item {
+    padding-right: 0.2rem;
+    padding-left: 0.2rem;
+    font-size: 11px;
+    
+    padding-bottom: 0.2rem;
+    padding-top: 0.2rem;
+
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+    font-family: "Pixelated MS Sans Serif", Arial;
+
+    cursor: pointer;
+}
+
+.context-menu-item:hover {
+    background-color: navy;
+    color: #fff;
+}

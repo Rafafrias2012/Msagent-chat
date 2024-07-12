@@ -1,5 +1,6 @@
 import { BufferStream, SeekDir } from './buffer.js';
 import { AcsData } from './character.js';
+import { ContextMenu, ContextMenuItem } from './contextmenu.js';
 import { AcsAnimation, AcsAnimationFrameInfo } from './structs/animation.js';
 import { AcsImageEntry } from './structs/image.js';
 import { Point, Size } from './types.js';
@@ -69,7 +70,7 @@ class AgentWordBalloonState {
 	balloonCanvas: HTMLCanvasElement;
 	balloonCanvasCtx: CanvasRenderingContext2D;
 
-	constructor(char: Agent, text: string, hasTip: boolean, position: AgentWordBalloonPosition) {
+	constructor(char: Agent, text: string, hasTip: boolean, position: AgentWordBalloonPosition, textColor: string) {
 		this.char = char;
 		this.text = text;
 		this.hasTip = hasTip;
@@ -87,13 +88,13 @@ class AgentWordBalloonState {
 		// hack fix for above
 		this.balloonCanvas.style.pointerEvents = 'none';
 
-		let rect = wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20, hasTip);
+		let rect = wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20, hasTip, textColor);
 
 		// Second pass, actually set the element to the right width and stuffs
 		this.balloonCanvas.width = rect.w;
 		this.balloonCanvas.height = rect.h;
 
-		wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20, hasTip);
+		wordballoonDrawText(this.balloonCanvasCtx, { x: 0, y: 0 }, this.text, 20, hasTip, textColor);
 
 		this.char.getElement().appendChild(this.balloonCanvas);
 
@@ -142,6 +143,8 @@ export class Agent {
 	private wordballoonState: AgentWordBalloonState | null = null;
 	private usernameBalloonState: AgentWordBalloonState | null = null;
 
+	private contextMenu: ContextMenu;
+
 	constructor(data: AcsData) {
 		this.data = data;
 		this.charDiv = document.createElement('div');
@@ -154,6 +157,8 @@ export class Agent {
 		this.cnv.width = data.characterInfo.charWidth;
 		this.cnv.height = data.characterInfo.charHeight;
 		this.cnv.style.display = 'none';
+
+		this.contextMenu = new ContextMenu(this.charDiv);
 
 		this.charDiv.appendChild(this.cnv);
 
@@ -173,7 +178,7 @@ export class Agent {
 		});
 		this.cnv.addEventListener('contextmenu', (e) => {
 			e.preventDefault();
-			// TODO: Custom context menu support
+			this.contextMenu.show(e.clientX, e.clientY);
 		});
 		document.addEventListener('mousemove', (e) => {
 			if (!this.dragging) return;
@@ -199,6 +204,10 @@ export class Agent {
 
 	getElement() {
 		return this.charDiv;
+	}
+
+	getContextMenu() {
+		return this.contextMenu;
 	}
 
 	getAt() {
@@ -284,13 +293,13 @@ export class Agent {
 		if (index !== -1) this.playAnimation(index, finishCallback);
 	}
 
-	setUsername(username: string) {
+	setUsername(username: string, color: string) {
 		if (this.usernameBalloonState !== null) {
 			this.usernameBalloonState.finish();
 			this.usernameBalloonState = null;
 		}
 
-		this.usernameBalloonState = new AgentWordBalloonState(this, username, false, AgentWordBalloonPosition.BelowCentered);
+		this.usernameBalloonState = new AgentWordBalloonState(this, username, false, AgentWordBalloonPosition.BelowCentered, color);
 		this.usernameBalloonState.show();
 	}
 
@@ -299,7 +308,7 @@ export class Agent {
 			this.stopSpeaking();
 		}
 		
-		this.wordballoonState = new AgentWordBalloonState(this, text, true, AgentWordBalloonPosition.AboveCentered);
+		this.wordballoonState = new AgentWordBalloonState(this, text, true, AgentWordBalloonPosition.AboveCentered, "#000000");
 		this.wordballoonState.positionUpdated();
 		this.wordballoonState.show();
 	}

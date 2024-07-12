@@ -16,7 +16,22 @@ const elements = {
     chatSendBtn: document.getElementById("chatSendBtn") as HTMLButtonElement
 }
 
-let Room : MSAgentClient = new MSAgentClient(`${window.location.protocol}//${window.location.host}`, elements.chatView);
+let Room : MSAgentClient;
+
+function roomInit() {
+    Room = new MSAgentClient(`${window.location.protocol}//${window.location.host}`, elements.chatView);
+    Room.on('close', () => {
+        for (let user of Room.getUsers()) {
+            user.agent.remove();
+        }
+        roomInit();
+        loggingIn = false;
+        elements.logonButton.disabled = false;
+        logonWindow.show();
+        elements.logonView.style.display = "block";
+        elements.chatView.style.display = "none";
+    });
+}
 
 let logonWindow = new MSWindow(elements.logonWindow, {
     width: 500,
@@ -73,3 +88,5 @@ function talk() {
     Room.talk(elements.chatInput.value);
     elements.chatInput.value = "";
 }
+
+roomInit();

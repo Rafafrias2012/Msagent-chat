@@ -10,6 +10,8 @@ import { TTSClient } from './tts.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isIP } from 'net';
+import { Database } from './database.js';
+import { MSAgentErrorMessage, MSAgentProtocolMessageType } from '@msagent-chat/protocol';
 
 let config: IConfig;
 let configPath: string;
@@ -30,6 +32,9 @@ try {
     console.error(`Failed to read or parse ${configPath}: ${(e as Error).message}`);
     process.exit(1);
 }
+
+let db = new Database(config.mysql);
+await db.init();
 
 const app = Fastify({
     logger: true,
@@ -77,10 +82,10 @@ app.get("/api/agents", (req, res) => {
     return config.agents;
 });
 
-let room = new MSAgentChatRoom(config.chat, config.agents, tts);
+let room = new MSAgentChatRoom(config.chat, config.agents, db, tts);
 
 app.register(async app => {
-    app.get("/api/socket", {websocket: true}, (socket, req) => {
+    app.get("/api/socket", {websocket: true}, async (socket, req) => {
         // TODO: Do this pre-upgrade and return the appropriate status codes
         let ip: string;
         if (config.http.proxied) {
@@ -101,6 +106,18 @@ app.register(async app => {
             }
         } else {
             ip = req.ip;
+        }
+        if (await db.isUserBanned(ip)) {
+            let msg: MSAgentErrorMessage = {
+                op: MSAgentProtocolMessageType.Error,
+                data: {
+                    error: "You have been banned."
+                }
+            }
+            socket.send(JSON.stringify(msg), () => {
+                socket.close();
+            });
+            return;
         }
         let o = room.clients.filter(c => c.ip === ip);
         if (o.length >= config.chat.maxConnectionsPerIP) {

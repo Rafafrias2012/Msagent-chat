@@ -1,12 +1,17 @@
+export * from './admin.js';
+
 export enum MSAgentProtocolMessageType {
     // Client-to-server
     Join = "join",
     Talk = "talk",
+    Admin = "admin",
     // Server-to-client
     Init = "init",
     AddUser = "adduser",
     RemoveUser = "remuser",
-    Chat = "chat"
+    Chat = "chat",
+    Promote = "promote",
+    Error = "error"
 }
 
 export interface MSAgentProtocolMessage {
@@ -66,5 +71,19 @@ export interface MSAgentChatMessage extends MSAgentProtocolMessage {
         username: string;
         message: string;
         audio? : string | undefined;
+    }
+}
+
+export interface MSAgentPromoteMessage extends MSAgentProtocolMessage {
+    op: MSAgentProtocolMessageType.Promote,
+    data: {
+        username: string;
+    }
+}
+
+export interface MSAgentErrorMessage extends MSAgentProtocolMessage {
+    op: MSAgentProtocolMessageType.Error,
+    data: {
+        error: string;
     }
 }
