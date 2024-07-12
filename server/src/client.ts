@@ -25,6 +25,9 @@ export class Client extends EventEmitter {
     room: MSAgentChatRoom;
     socket: WebSocket;
 
+    nopTimer: NodeJS.Timeout | undefined;
+    nopLevel: number;
+
     chatRateLimit: RateLimiter
 
     constructor(socket: WebSocket, room: MSAgentChatRoom, ip: string) {
@@ -35,6 +38,8 @@ export class Client extends EventEmitter {
         this.username = null;
         this.agent = null;
         this.admin = false;
+        this.resetNop();
+        this.nopLevel = 0;
         
         this.chatRateLimit = new RateLimiter(this.room.config.ratelimits.chat);
 
@@ -67,6 +72,20 @@ export class Client extends EventEmitter {
         });
     }
 
+    private resetNop() {
+        clearInterval(this.nopTimer);
+        this.nopLevel = 0;
+        this.nopTimer = setInterval(() => {
+            if (this.nopLevel++ >= 3) {
+                this.socket.close();
+            } else {
+                this.send({
+                    op: MSAgentProtocolMessageType.KeepAlive
+                });
+            }
+        }, 10000)
+    }
+
     private async parseMessage(data: string) {
         let msg: MSAgentProtocolMessage;
         try {
@@ -75,6 +94,7 @@ export class Client extends EventEmitter {
             this.socket.close();
             return;
         }
+        this.resetNop();
         switch (msg.op) {
             case MSAgentProtocolMessageType.Join: {
                 let joinMsg = msg as MSAgentJoinMessage;

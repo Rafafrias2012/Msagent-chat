@@ -2,6 +2,7 @@ export * from './admin.js';
 
 export enum MSAgentProtocolMessageType {
     // Client-to-server
+    KeepAlive = "nop",
     Join = "join",
     Talk = "talk",
     Admin = "admin",

@@ -249,6 +249,12 @@ export class MSAgentClient {
 			return;
 		}
 		switch (msg.op) {
+			case MSAgentProtocolMessageType.KeepAlive: {
+				this.send({
+					op: MSAgentProtocolMessageType.KeepAlive
+				});
+				break;
+			}
 			case MSAgentProtocolMessageType.Init: {
 				let initMsg = msg as MSAgentInitMessage;
 				this.username = initMsg.data.username;
