@@ -44,12 +44,6 @@ app.register(FastifyWS);
 
 let tts = null;
 
-app.register(FastifyStatic, {
-    root: path.dirname(fileURLToPath(import.meta.url)) + "/../../webapp/dist/",
-    prefix: "/",
-    decorateReply: true
-  });
-
 if (config.tts.enabled) {
     tts = new TTSClient(config.tts);
     app.register(FastifyStatic, {
@@ -75,7 +69,7 @@ for (let agent of config.agents) {
 app.register(FastifyStatic, {
     root: path.resolve(config.chat.agentsDir),
     prefix: "/api/agents/",
-    decorateReply: false,
+    decorateReply: true,
 });
 
 app.get("/api/agents", (req, res) => {

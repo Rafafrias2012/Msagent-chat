@@ -1,6 +1,7 @@
 import { MSWindow, MSWindowStartPosition } from "./MSWindow.js";
 import { agentInit } from "@msagent-chat/msagent.js";
 import { MSAgentClient } from "./client.js";
+import { Config } from "../../config.js";
 
 
 const elements = {
@@ -23,7 +24,7 @@ const elements = {
 let Room : MSAgentClient;
 
 function roomInit() {
-    Room = new MSAgentClient(`${window.location.protocol}//${window.location.host}`, elements.chatView);
+    Room = new MSAgentClient(Config.serverAddress, elements.chatView);
     Room.on('close', () => {
         for (let user of Room.getUsers()) {
             user.agent.remove();
