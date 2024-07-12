@@ -46,7 +46,8 @@ export class MSAgentChatRoom {
                     users: this.clients.filter(c => c.username !== null).map(c => {
                         return {
                             username: c.username!,
-                            agent: c.agent!
+                            agent: c.agent!,
+                            admin: c.admin
                         }
                     })
                 }
