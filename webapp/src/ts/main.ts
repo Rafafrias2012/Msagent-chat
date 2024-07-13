@@ -18,7 +18,9 @@ const elements = {
 
     chatView: document.getElementById("chatView") as HTMLDivElement,
     chatInput: document.getElementById("chatInput") as HTMLInputElement,
-    chatSendBtn: document.getElementById("chatSendBtn") as HTMLButtonElement
+    chatSendBtn: document.getElementById("chatSendBtn") as HTMLButtonElement,
+
+    roomSettingsWindow: document.getElementById("roomSettingsWindow") as HTMLDivElement
 }
 
 let Room : MSAgentClient;
@@ -51,7 +53,14 @@ let logonWindow = new MSWindow(elements.logonWindow, {
     startPosition: MSWindowStartPosition.Center
 });
 
+let roomSettingsWindow = new MSWindow(elements.roomSettingsWindow, {
+    minWidth: 398,
+    minHeight: 442,
+    startPosition: MSWindowStartPosition.Center
+});
+
 logonWindow.show();
+// roomSettingsWindow.show();
 
 let loggingIn = false;
 elements.logonForm.addEventListener('submit', e => {

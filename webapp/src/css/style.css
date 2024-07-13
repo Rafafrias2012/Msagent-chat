@@ -1,6 +1,6 @@
 body {
     background-color: #3A6EA5;
-    font-size: 8pt;
+    font-size: 11px;
 }
 
 #logonView {
@@ -12,11 +12,17 @@ body {
 }
 
 .window {
-    display: none;
+    display: flex;
+    flex-direction: column;
+
     position: fixed;
     .title-bar {
         user-select: none;
     }
+}
+
+.window-body {
+    flex: 1;
 }
 
 #motdContainer {
@@ -24,7 +30,8 @@ body {
 }
 
 #bottomLinks {
-    font-family: "Pixelated MS Sans Serif", Arial;
+    font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+
     li {
         display: inline;
         border-right: 1px solid black;
@@ -41,11 +48,13 @@ body {
             color: #fff;
         }
     }
+
     li:last-child {
         border-right: none;
         padding-right: 0;
         margin-right: 0;
     }
+
     list-style: none;
     display: block;
     position: fixed;
@@ -53,6 +62,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
 }
+
 
 #logonWindowLogo {
     background-color: #ffffff;
@@ -93,6 +103,53 @@ body {
     margin-right: 90px;
 }
 
+
+#roomSettingsBody {
+    display: flex;
+    flex-direction: column;
+}
+
+#roomSettingsTabContent {
+    flex: 1;
+    margin-bottom: 8px;
+}
+
+/* CSS nesting isn't even a year old as of writing this, we should consider using SASS or something for now */
+#roomSettingsWallpaperTab {
+    display: flex;
+    flex-direction: column;
+
+    .wallpaperMonitor {
+        text-align: center;
+        flex: 1;
+    }
+
+    #roomSettingsWallpaperSelect {
+        height: 114px;
+        display: flex;
+        flex-direction: row;
+
+        gap: 8px;
+
+        .mainCol {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+
+            .tree-view {
+                flex: 1;
+                overflow: auto;
+            }
+        }
+
+        #roomSettingsWallpaperURL {
+            margin-top: 8px;
+            width: 100%;
+        }
+    }
+}
+
+
 #chatBar {
     margin: 0;
     padding: 0;
@@ -115,6 +172,26 @@ body {
 #chatSentBtn {
     font-weight: bold;
     margin-right: 4px;
+}
+
+.wallpaperMonitor {
+    div {
+        display: inline-block;
+        position: relative;
+    }
+
+    .wallpaperMonitorFg {
+        position: absolute;
+        width: 152px;
+        height: 112px;
+        margin: 17px 16px;
+        background: linear-gradient(160deg, #9b4f96, #0038a8);
+    }
+}
+
+
+.fieldRowRight {
+    justify-content: flex-end;
 }
 
 .context-menu {
@@ -144,4 +221,8 @@ body {
 .context-menu-item:hover {
     background-color: navy;
     color: #fff;
+}
+
+.d-none {
+    display: none;
 }
