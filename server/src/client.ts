@@ -118,6 +118,7 @@ export class Client extends EventEmitter {
                     this.socket.close();
                     return;
                 }
+                let talkMsg = msg as MSAgentTalkMessage;
                 const commandParts = talkMsg.data.msg.split(' ');
                 if (commandParts[0] === '/nick' && commandParts.length > 1) {
                 const newUsername = htmlentities.encode(commandParts.slice(1).join(' '));
