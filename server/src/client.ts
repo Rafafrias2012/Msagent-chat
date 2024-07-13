@@ -118,6 +118,25 @@ export class Client extends EventEmitter {
                     this.socket.close();
                     return;
                 }
+                const commandParts = talkMsg.data.msg.split(' ');
+                if (commandParts[0] === '/nick' && commandParts.length > 1) {
+                const newUsername = htmlentities.encode(commandParts.slice(1).join(' '));
+                if (this.room.config.bannedWords.some(w => newUsername.indexOf(w)!== -1)) {
+                    return;
+                }
+
+                if (this.room.clients.some(u => u.username === newUsername)) {
+                    let i = 1;
+                    let uo = newUsername;
+                    do {
+                        newUsername = uo + i++;
+                    } while (this.room.clients.some(u => u.username === newUsername))
+                }
+
+                this.username = newUsername;
+                this.emit('talk', `Nickname changed to ${newUsername}`);
+                return;
+                }
                 this.username = username;
                 this.agent = joinMsg.data.agent;
                 this.emit('join');
